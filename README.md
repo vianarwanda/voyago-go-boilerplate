@@ -212,7 +212,7 @@ internal/modules/{MODULE_NAME}/
 
 ## Documentation Standards
 
-All handler and usecase files **must** include documentation headers that outline architectural standards and observability guidelines.
+All handler, usecase, and repository implementation files **must** include documentation headers (Manifestos) that outline architectural standards and observability guidelines.
 
 ### Handler Documentation Template:
 ```go
@@ -220,18 +220,10 @@ All handler and usecase files **must** include documentation headers that outlin
 |------------------------------------------------------------------------------------
 | HTTP HANDLER ARCHITECTURAL STANDARDS & OBSERVABILITY MANIFESTO
 |------------------------------------------------------------------------------------
-|
-| [1. THE SINGLE LOG RULE]
-| - Every handler execution MUST emit exactly ONE "Anchor Log"
-|
-| [2. ZERO POST-ENTRY LOGGING]
-| - Once the request is delegated to UseCase, Handler MUST NOT emit logs
-|
-| [3. LEAN ORCHESTRATION]
-| - Validation → Parsing → Error Bubbling (to Global Error Handler)
-|
-| [4. RESPONSE NORMALIZATION]
-| - Always use the standardized 'response' package
+| [1. THE SINGLE LOG RULE] - One "Anchor Log" per execution.
+| [2. ZERO POST-ENTRY LOGGING] - Handler stops logging after UseCase delegation.
+| [3. LEAN ORCHESTRATION] - Validation → Parsing → Error Bubbling.
+| [4. RESPONSE NORMALIZATION] - Standardized response package usage.
 |------------------------------------------------------------------------------------
 */
 ```
@@ -242,17 +234,37 @@ All handler and usecase files **must** include documentation headers that outlin
 |------------------------------------------------------------------------------------
 | USECASE ARCHITECTURAL STANDARDS & OBSERVABILITY MANIFESTO
 |------------------------------------------------------------------------------------
-|
-| [1. COMPLIANCE STANDARDS]
-| - Interface-First: UseCases MUST be defined as interfaces in contract.go.
-| - Traceability, Observability, Validation, Atomicity, Side Effects.
-|
-| [2. LOGGING OPERATIONAL SCOPE]
-| - MINIMAL LOGS: "started" and "completed/failed" only.
-| - ERROR BUBBLING: Do not log downstream errors.
-|
-| [3. STANDARD ERROR HANDLING]
-| - RECORD → ENRICH → LOG → BUBBLE → HALT.
+| [1. COMPLIANCE STANDARDS] - Interface-First, Traceability, Atomicity.
+| [2. LOGGING OPERATIONAL SCOPE] - MINIMAL LOGS: "started" and "completed" only.
+| [3. STANDARD ERROR HANDLING] - RECORD → ENRICH → LOG → BUBBLE → HALT.
+|------------------------------------------------------------------------------------
+*/
+```
+
+### Repository (Command) Documentation Template:
+```go
+/*
+|------------------------------------------------------------------------------------
+| REPOSITORY ARCHITECTURAL STANDARDS & PERSISTENCE MANIFESTO
+|------------------------------------------------------------------------------------
+| [1. ERROR MAPPING] - Map raw DB errors to apperror.AppError.
+| [2. AUTOMATIC OBSERVABILITY] - Prohibit redundant logging (use GORM metrics).
+| [3. ATOMICITY COMPLIANCE] - Respect 'ctx' for transactions.
+| [4. GENERIC CONSTRAINTS] - BaseRepository embedding for standard CRUD.
+|------------------------------------------------------------------------------------
+*/
+```
+
+### Repository (Query) Documentation Template:
+```go
+/*
+|------------------------------------------------------------------------------------
+| REPOSITORY ARCHITECTURAL STANDARDS & QUERY OPTIMIZATION MANIFESTO
+|------------------------------------------------------------------------------------
+| [1. SELECTIVE RETRIEVAL] - Specify fields in .Select(). NO SELECT *.
+| [2. NULLABLE VS ERROR] - Return (nil, nil) for Not Found queries.
+| [3. READ-ONLY CONTEXT] - Propagation of timeouts and tracing via ctx.
+| [4. PRELOAD DISCIPLINE] - Avoid N+1 issues via strict preloading.
 |------------------------------------------------------------------------------------
 */
 ```
