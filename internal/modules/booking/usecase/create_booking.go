@@ -143,7 +143,6 @@ func (uc *createBookingUseCase) Execute(ctx context.Context, req *CreateBookingR
 		totalAmount += d.PricePerUnit * float64(d.Qty)
 		details = append(details, entity.BookingDetail{
 			ID:           detailID,
-			BookingID:    bookingID,
 			ProductID:    d.ProductID,
 			ProductName:  d.ProductName,
 			Qty:          d.Qty,
@@ -234,9 +233,9 @@ func (uc *createBookingUseCase) Execute(ctx context.Context, req *CreateBookingR
 	log.Info("usecase completed")
 
 	// Map Entity to Response DTO
-	var detailsResponse []CreateBookingDetailRequest
+	var detailsResponse []CreateBookingDetailResponse
 	for _, d := range e.Details {
-		detailsResponse = append(detailsResponse, CreateBookingDetailRequest{
+		detailsResponse = append(detailsResponse, CreateBookingDetailResponse{
 			ProductID:    d.ProductID,
 			ProductName:  d.ProductName,
 			Qty:          d.Qty,
