@@ -7,6 +7,8 @@
 | maintain system integrity and observability hygiene.
 |
 | [1. COMPLIANCE STANDARDS]
+| - Interface-First: UseCases MUST be defined as interfaces to enable decoupled
+|   communication and seamless unit testing (mocking).
 | - Traceability: Maintain a continuous trace chain from entry to exit.
 | - Observability: Ensure actions are searchable via business keys.
 | - Validation: Enforce strict DTO validation before domain processing.
@@ -49,29 +51,14 @@ import (
 	"voyago/core-api/internal/pkg/utils"
 )
 
-// -------- DTO --------
-type CreateBookingRequest struct {
-	// BookingID   string                       `json:"booking_id" validate:"required,uuid" label:"Booking ID"`
-	BookingCode string                       `json:"code" validate:"required,min=3,max=50" label:"Booking code"`
-	UserID      string                       `json:"user_id" validate:"required,uuid" label:"User ID"`
-	TotalAmount float64                      `json:"total_amount" validate:"gte=0" label:"Total amount"`
-	Details     []CreateBookingDetailRequest `json:"details" validate:"required,min=1,dive" label:"Details"`
-}
-
-type CreateBookingDetailRequest struct {
-	ProductID    string  `json:"product_id" validate:"required,uuid_rfc4122" label:"Product ID"`
-	ProductName  *string `json:"product_name" validate:"omitempty,max=100" label:"Product name"`
-	Qty          int32   `json:"qty" validate:"required,gt=0" label:"Quantity"`
-	PricePerUnit float64 `json:"price_per_unit" validate:"required,gt=0" label:"Price per unit"`
-	SubTotal     float64 `json:"sub_total" validate:"required,gt=0" label:"Sub total"`
-}
-
 type CreateBookingRepositories struct {
 	BookingCmd repository.BookingCommandRepository
 	BookingQry repository.BookingQueryRepository
 }
 
-type CreateBookingUseCase struct {
+// createBookingUseCase is the private implementation of CreateBookingUseCase.
+// Use NewCreateBookingUseCase constructor to instantiate.
+type createBookingUseCase struct {
 	Log    logger.Logger
 	Tracer tracer.Tracer
 	Runner baserepo.TransactionManager
@@ -85,8 +72,12 @@ const (
 	useCaseName = "usecase:booking.create"
 )
 
-func NewCreateBookingUseCase(log logger.Logger, trc tracer.Tracer, runner baserepo.TransactionManager, repo CreateBookingRepositories) *CreateBookingUseCase {
-	return &CreateBookingUseCase{
+// Compile-time check to ensure BookingRepository implements the required interface.
+// This prevents runtime panics or dependency injection failures if the interface changes.
+var _ CreateBookingUseCase = (*createBookingUseCase)(nil)
+
+func NewCreateBookingUseCase(log logger.Logger, trc tracer.Tracer, runner baserepo.TransactionManager, repo CreateBookingRepositories) CreateBookingUseCase {
+	return &createBookingUseCase{
 		// WithField creates a sub-logger that automatically attaches the "action" context.
 		Log:    log.WithField("action", useCaseName),
 		Tracer: trc,
@@ -95,7 +86,7 @@ func NewCreateBookingUseCase(log logger.Logger, trc tracer.Tracer, runner basere
 	}
 }
 
-func (uc *CreateBookingUseCase) Execute(ctx context.Context, req *CreateBookingRequest) (*entity.Booking, error) {
+func (uc *createBookingUseCase) Execute(ctx context.Context, req *CreateBookingRequest) (*CreateBookingResponse, error) {
 	// 1. START TRACING
 	// StartSpan initializes a new trace span. The returned 'ctx' carries the span
 	// information and must be passed downstream to maintain the trace chain.
@@ -241,7 +232,26 @@ func (uc *CreateBookingUseCase) Execute(ctx context.Context, req *CreateBookingR
 	// Clean exit log: relying on TraceID for correlation with the "started" log.
 	// No business_key here (already in 'started')
 	log.Info("usecase completed")
-	return &e, nil
+
+	// Map Entity to Response DTO
+	var detailsResponse []CreateBookingDetailRequest
+	for _, d := range e.Details {
+		detailsResponse = append(detailsResponse, CreateBookingDetailRequest{
+			ProductID:    d.ProductID,
+			ProductName:  d.ProductName,
+			Qty:          d.Qty,
+			PricePerUnit: d.PricePerUnit,
+			SubTotal:     d.SubTotal,
+		})
+	}
+
+	return &CreateBookingResponse{
+		BookingID:   e.ID,
+		BookingCode: e.BookingCode,
+		UserID:      e.UserID,
+		TotalAmount: e.TotalAmount,
+		Details:     detailsResponse,
+	}, nil
 }
 
 func logAndTraceError(span tracer.Span, log logger.Logger, err error, msg string, isCritical bool) {

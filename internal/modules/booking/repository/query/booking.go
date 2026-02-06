@@ -1,3 +1,30 @@
+/*
+|------------------------------------------------------------------------------------
+| REPOSITORY ARCHITECTURAL STANDARDS & QUERY OPTIMIZATION MANIFESTO
+|------------------------------------------------------------------------------------
+|
+| The Query Repository is dedicated to data retrieval. It follows the R-side of
+| CQRS, focusing on performance, filtering, and non-mutating operations.
+|
+| [1. SELECTIVE RETRIEVAL (NO SELECT *)]
+| - Always specify required fields in .Select(). Avoid 'SELECT *' to minimize
+|   database I/O and prevent sensitive data leakage.
+|
+| [2. NULLABLE VS ERROR]
+| - If a record is NOT FOUND, return (nil, nil) instead of an error for Query
+|   methods (unless the business logic dictates that the absence is an anomaly).
+| - Database connection issues or syntax errors MUST still be mapped and returned.
+|
+| [3. READ-ONLY CONTEXT]
+| - Ensure .WithContext(ctx) is called to respect timeouts, cancellations,
+|   and tracing propagation.
+|
+| [4. PRELOAD DISCIPLINE]
+| - Only Preload relationships that are strictly necessary for the requested
+|   operation to avoid N+1 query problems or heavy payload bloat.
+|
+|------------------------------------------------------------------------------------
+*/
 package query
 
 import (
@@ -10,21 +37,23 @@ import (
 	"gorm.io/gorm"
 )
 
-type BookingRepository struct {
+// bookingRepository implements the repository.BookingQueryRepository interface.
+// It focuses on efficient data fetching and complex filtering logic.
+type bookingRepository struct {
 	DB database.Database
 }
 
-// Compile-time check to ensure BookingRepository implements the required interface.
-// This prevents runtime panics or dependency injection failures if the interface changes.
-var _ repository.BookingQueryRepository = (*BookingRepository)(nil)
+// [INTERFACE COMPLIANCE CHECK]
+var _ repository.BookingQueryRepository = (*bookingRepository)(nil)
 
+// NewBookingRepository creates a new instance for reading Booking data.
 func NewBookingRepository(db database.Database) repository.BookingQueryRepository {
-	return &BookingRepository{
+	return &bookingRepository{
 		DB: db,
 	}
 }
 
-func (r *BookingRepository) ExistsByBookingCode(ctx context.Context, code string) (bool, error) {
+func (r *bookingRepository) ExistsByBookingCode(ctx context.Context, code string) (bool, error) {
 	if code == "" {
 		return false, nil
 	}
@@ -40,7 +69,7 @@ func (r *BookingRepository) ExistsByBookingCode(ctx context.Context, code string
 	return count > 0, nil
 }
 
-func (r *BookingRepository) FindByCode(ctx context.Context, code string) (*entity.Booking, error) {
+func (r *bookingRepository) FindByCode(ctx context.Context, code string) (*entity.Booking, error) {
 	if code == "" {
 		return nil, nil
 	}
@@ -70,7 +99,7 @@ func (r *BookingRepository) FindByCode(ctx context.Context, code string) (*entit
 
 	return &booking, nil
 }
-func (r *BookingRepository) FindByID(ctx context.Context, id string) (*entity.Booking, error) {
+func (r *bookingRepository) FindByID(ctx context.Context, id string) (*entity.Booking, error) {
 	if id == "" {
 		return nil, nil
 	}

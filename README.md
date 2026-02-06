@@ -59,64 +59,76 @@ The following directories are maintained by the core team and should not be modi
 
 ### 1. Interface Definitions in `contract.go` (Mandatory)
 
-Every module **must** include a `repository/contract.go` file that defines interfaces following the **CQRS** (Command Query Responsibility Segregation) pattern:
+Every module **must** include `contract.go` files in both `repository` and `usecase` directories. These files serve as the "Public API" of each layer.
 
+#### Repository Contracts (CQRS Pattern)
 ```go
 // repository/contract.go
-package repository
-
-// -------- Command Repository --------
 type BookingCommandRepository interface {
     Create(ctx context.Context, booking *entity.Booking) error
-    Update(ctx context.Context, booking *entity.Booking) error
-    Delete(ctx context.Context, booking *entity.Booking) error
 }
 
-// -------- Query Repository --------
 type BookingQueryRepository interface {
     FindByID(ctx context.Context, id string) (*entity.Booking, error)
-    ExistsByBookingCode(ctx context.Context, code string) (bool, error)
+}
+```
+
+#### UseCase Contracts
+DTOs (Request/Response) and the UseCase interface itself must be defined here.
+```go
+// usecase/contract.go
+type CreateBookingRequest struct { ... }
+type CreateBookingResponse struct { ... }
+
+type CreateBookingUseCase interface {
+    Execute(ctx context.Context, req *CreateBookingRequest) (*CreateBookingResponse, error)
 }
 ```
 
 **Rationale:**
-- **Dependency Injection** — UseCases depend on interfaces, not implementations
-- **Testability** — Enables straightforward mocking for unit tests
-- **Compile-time Safety** — Interface compliance verification via `var _ Interface = (*Impl)(nil)`
+- **Decoupling** — Layers depend on abstractions, not implementations.
+- **Testability** — Enables seamless mocking for unit tests.
+- **Clarity** — All public-facing structures are easily discoverable in one file.
 
 ---
 
-### 2. Data Transfer Objects (DTOs) in UseCase Files (Mandatory)
+### 2. Implementation Naming & Compliance (Mandatory)
 
-Each usecase **must** define its request DTO within the same file:
+To avoid naming collisions and strictly enforce the use of interfaces, implementation structs **must** be private (lowercase), while the factory functions and interfaces remain public.
 
 ```go
 // usecase/create_booking.go
-package usecase
 
-// -------- DTO --------
-type CreateBookingRequest struct {
-    BookingCode string  `json:"code" validate:"required,min=3,max=50"`
-    UserID      string  `json:"user_id" validate:"required,uuid"`
-    TotalAmount float64 `json:"total_amount" validate:"gte=0"`
-    Details     []CreateBookingDetailRequest `json:"details" validate:"required,min=1,dive"`
+// 1. Interface Compliance Check
+var _ CreateBookingUseCase = (*createBookingUseCase)(nil)
+
+// 2. Private Implementation
+type createBookingUseCase struct {
+    Repo repository.BookingCommandRepository
 }
 
-type CreateBookingDetailRequest struct {
-    ProductID    string  `json:"product_id" validate:"required,uuid_rfc4122"`
-    Qty          int32   `json:"qty" validate:"required,gt=0"`
-    PricePerUnit float64 `json:"price_per_unit" validate:"required,gt=0"`
+// 3. Public Factory (returns the interface)
+func NewCreateBookingUseCase(...) CreateBookingUseCase {
+    return &createBookingUseCase{...}
 }
 ```
 
-**Validation Tags Reference:**
-| Tag | Description |
-|-----|-------------|
-| `required` | Field is mandatory |
-| `uuid` | Must be a valid UUID format |
-| `min=N,max=N` | String length constraints |
-| `gte=N`, `gt=N` | Numeric value constraints |
-| `dive` | Validates nested array elements |
+---
+
+### 3. DTO & Data Flow Standards (Mandatory)
+
+We strictly separate Domain Entities from external API contracts.
+
+**The Flow:**
+1. **Handler** receives an HTTP request and parses it into a **Request DTO**.
+2. **UseCase** receives the **Request DTO**, processes it using **Entities**, and persists via **Repository**.
+3. **Repository** returns **Entities** to the UseCase.
+4. **UseCase** MUST map the **Entities** back into a **Response DTO** before returning to the Handler.
+
+**Rationale:**
+- Prevents database schema leaks to the API.
+- Allows the internal domain to evolve independently of the external contract.
+- Ensures the Handler (Upstream) only deals with cleaned, formatted data.
 
 ---
 
@@ -181,7 +193,8 @@ internal/modules/{MODULE_NAME}/
 │   └── query/
 │       └── {entity}.go         # Read operations implementation
 ├── usecase/
-│   └── {action}_{entity}.go    # Business logic with DTOs
+│   ├── contract.go             # ⭐ MANDATORY: Interface & DTO definitions
+│   └── {action}_{entity}.go    # Implementation of the business logic
 └── module.go                   # Dependency injection and module registration
 ```
 
@@ -221,14 +234,15 @@ All handler and usecase files **must** include documentation headers that outlin
 |------------------------------------------------------------------------------------
 |
 | [1. COMPLIANCE STANDARDS]
-| - Traceability, Observability, Validation, Atomicity, Side Effects
+| - Interface-First: UseCases MUST be defined as interfaces in contract.go.
+| - Traceability, Observability, Validation, Atomicity, Side Effects.
 |
 | [2. LOGGING OPERATIONAL SCOPE]
-| - MINIMAL LOGS: "started" and "completed/failed" only
-| - ERROR BUBBLING: Do not log downstream errors
+| - MINIMAL LOGS: "started" and "completed/failed" only.
+| - ERROR BUBBLING: Do not log downstream errors.
 |
 | [3. STANDARD ERROR HANDLING]
-| - RECORD → ENRICH → LOG → BUBBLE → HALT
+| - RECORD → ENRICH → LOG → BUBBLE → HALT.
 |------------------------------------------------------------------------------------
 */
 ```

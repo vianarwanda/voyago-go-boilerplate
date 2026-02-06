@@ -13,13 +13,13 @@ import (
 	"github.com/lmittmann/tint"
 )
 
-type StdoutLogger struct {
+type stdoutLogger struct {
 	handler slog.Handler
 	logger  *slog.Logger
 	tracer  tracer.Tracer
 }
 
-var _ Logger = (*StdoutLogger)(nil)
+var _ Logger = (*stdoutLogger)(nil)
 
 func NewStdoutLogger(config *config.Config, trc tracer.Tracer) Logger {
 	var slogLevel slog.Level
@@ -44,14 +44,14 @@ func NewStdoutLogger(config *config.Config, trc tracer.Tracer) Logger {
 	})
 	maskingHandler := NewMaskingHandler(baseHandler)
 
-	return &StdoutLogger{
+	return &stdoutLogger{
 		handler: maskingHandler,
 		logger:  slog.New(maskingHandler),
 		tracer:  trc,
 	}
 }
 
-func (l *StdoutLogger) WithContext(ctx context.Context) Logger {
+func (l *stdoutLogger) WithContext(ctx context.Context) Logger {
 	if ctx == nil {
 		return l
 	}
@@ -71,7 +71,7 @@ func (l *StdoutLogger) WithContext(ctx context.Context) Logger {
 	}
 
 	if len(args) > 0 {
-		return &StdoutLogger{
+		return &stdoutLogger{
 			handler: l.handler,
 			logger:  l.logger.With(args...),
 			tracer:  l.tracer,
@@ -81,24 +81,24 @@ func (l *StdoutLogger) WithContext(ctx context.Context) Logger {
 	return l
 }
 
-func (l *StdoutLogger) WithField(key string, value any) Logger {
+func (l *stdoutLogger) WithField(key string, value any) Logger {
 	newLogger := l.logger.With(slog.Any(key, value))
-	return &StdoutLogger{handler: l.handler, logger: newLogger, tracer: l.tracer}
+	return &stdoutLogger{handler: l.handler, logger: newLogger, tracer: l.tracer}
 }
 
-func (l *StdoutLogger) WithFields(fields map[string]any) Logger {
+func (l *stdoutLogger) WithFields(fields map[string]any) Logger {
 	args := make([]any, 0, len(fields)*2)
 	for k, v := range fields {
 		args = append(args, k, v)
 	}
 	newLogger := l.logger.With(args...)
-	return &StdoutLogger{handler: l.handler, logger: newLogger, tracer: l.tracer}
+	return &stdoutLogger{handler: l.handler, logger: newLogger, tracer: l.tracer}
 }
 
-func (l *StdoutLogger) Debug(msg string) { l.logger.Debug(msg) }
-func (l *StdoutLogger) Info(msg string)  { l.logger.Info(msg) }
-func (l *StdoutLogger) Warn(msg string)  { l.logger.Warn(msg) }
-func (l *StdoutLogger) Error(msg string) { l.logger.Error(msg) }
+func (l *stdoutLogger) Debug(msg string) { l.logger.Debug(msg) }
+func (l *stdoutLogger) Info(msg string)  { l.logger.Info(msg) }
+func (l *stdoutLogger) Warn(msg string)  { l.logger.Warn(msg) }
+func (l *stdoutLogger) Error(msg string) { l.logger.Error(msg) }
 
 // ------- MASKING HANDLER -------
 

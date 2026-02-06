@@ -50,7 +50,7 @@ const (
 )
 
 type HandlerUseCases struct {
-	CreateBookingUseCase *usecase.CreateBookingUseCase
+	CreateBookingUseCase usecase.CreateBookingUseCase
 }
 
 type Handler struct {
