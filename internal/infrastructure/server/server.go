@@ -104,9 +104,7 @@ func errorHdlr(c *fiber.Ctx, err error) error {
 	// Ambil Trace ID dari locals yang udah kita set di middleware
 	traceID, _ := c.Locals("trace_id").(string)
 
-	// return response.NewApiResponse(c).JSONError(c, code, errCode, message, false, err)
-
-	return c.Status(code).JSON(response.ApiResponse{
+	return c.Status(code).JSON(response.ResponseApi{
 		Success:     false,
 		Message:     message,
 		ErrorCode:   errCode,

@@ -2,10 +2,10 @@ package response
 
 import "github.com/gofiber/fiber/v2"
 
-// ApiResponse defines the standardized JSON structure for all API responses.
+// ResponseApi defines the standardized JSON structure for all API responses.
 // It bridges the gap between the server and client by providing consistent
 // metadata, domain data, and observability IDs (TraceID).
-type ApiResponse struct {
+type ResponseApi struct {
 	// Success indicates if the operation was completed without business or technical errors.
 	Success bool `json:"success"`
 
@@ -32,20 +32,20 @@ type ApiResponse struct {
 	TraceID string `json:"trace_id,omitempty"`
 }
 
-// NewApiResponse initializes a new response object and automatically extracts
+// NewResponseApi initializes a new response object and automatically extracts
 // the TraceID from the context (populated by telemetries middleware).
-func NewApiResponse(c *fiber.Ctx) *ApiResponse {
+func NewResponseApi(c *fiber.Ctx) *ResponseApi {
 	// Extract TraceID from locals.
 	// This ensures every response, whether success or error, carries its technical identity.
 	traceID, _ := c.Locals("trace_id").(string)
-	return &ApiResponse{
+	return &ResponseApi{
 		TraceID: traceID,
 	}
 }
 
 // OK sends a standardized successful response (HTTP 200).
 // It populates the common fields and ensures the 'Success' flag is set to true.
-func (r *ApiResponse) OK(c *fiber.Ctx, response ApiResponse) error {
+func (r *ResponseApi) OK(c *fiber.Ctx, response ResponseApi) error {
 	r.Success = true
 	r.Message = response.Message
 	r.Data = response.Data
