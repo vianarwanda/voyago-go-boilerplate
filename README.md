@@ -150,6 +150,9 @@ func (e *Booking) Validate() error {
 }
 ```
 
+> [!TIP]
+> If no domain validation is required for an entity, simply implement the method with `return nil`.
+
 ---
 
 ### 4. Repository Standards (Mandatory)
@@ -159,7 +162,7 @@ Repositories are divided into **Command** (Write) and **Query** (Read) to follow
 #### Command Repository (Write)
 - **Error Mapping**: MUST NOT return raw DB errors. Use `database.MapDBError` to translate to `apperror.AppError`.
 - **Atomicity**: MUST respect the `ctx` to participate in transactions managed by `TransactionManager`.
-- **Generic CRUD**: Use `BaseRepository` embedding to reduce boilerplate.
+- **Generic CRUD**: Use `GormBaseRepository` embedding (from infrastructure layer) to reduce boilerplate.
 
 #### Query Repository (Read)
 - **Selective Retrieval**: Always use `.Select()` to specify fields. **AVOID `SELECT *`**.
@@ -178,9 +181,6 @@ func NewBookingRepository(db database.Database) repository.BookingCommandReposit
     return &bookingRepository{...}
 }
 ```
-
-> [!TIP]
-> If no domain validation is required for an entity, simply implement the method with `return nil`.
 
 ---
 
