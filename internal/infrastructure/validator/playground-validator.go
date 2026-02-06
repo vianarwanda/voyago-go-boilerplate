@@ -177,9 +177,5 @@ func (v *playgroundValidator) getLabel(fe validator.FieldError) string {
 func (v *playgroundValidator) getJsonLabel(fe validator.FieldError) string {
 	parts := strings.Split(fe.Field(), "|")
 	displayJson := parts[0]
-
-	if len(parts) > 1 {
-		displayJson = parts[0]
-	}
 	return displayJson
 }
