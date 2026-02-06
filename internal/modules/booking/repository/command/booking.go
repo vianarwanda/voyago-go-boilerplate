@@ -32,16 +32,15 @@ import (
 	database "voyago/core-api/internal/infrastructure/db"
 	"voyago/core-api/internal/modules/booking/entity"
 	"voyago/core-api/internal/modules/booking/repository"
-	baserepo "voyago/core-api/internal/pkg/repository"
 )
 
 // bookingRepository provides the concrete implementation of BookingCommandRepository.
-// By embedding BaseRepository, it gains robust CRUD capabilities while maintaining
+// By embedding GormBaseRepository, it gains robust CRUD capabilities while maintaining
 // strict type safety for the entity.Booking model.
 type bookingRepository struct {
 	// We use Pointer Embedding to inherit method sets and ensure the repository
 	// behaves as a reference type across the application.
-	*baserepo.BaseRepository[entity.Booking]
+	*database.GormBaseRepository[entity.Booking]
 }
 
 // [INTERFACE COMPLIANCE CHECK]
@@ -56,7 +55,7 @@ var _ repository.BookingCommandRepository = (*bookingRepository)(nil)
 // errors into Domain-friendly AppErrors before they reach the UseCase.
 func NewBookingRepository(db database.Database) repository.BookingCommandRepository {
 	return &bookingRepository{
-		BaseRepository: &baserepo.BaseRepository[entity.Booking]{
+		GormBaseRepository: &database.GormBaseRepository[entity.Booking]{
 			DB:          db,
 			ErrorMapper: database.MapDBError,
 		},

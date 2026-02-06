@@ -171,7 +171,7 @@ Like UseCases, Repository implementations MUST be private.
 ```go
 // repository/command/booking.go
 type bookingRepository struct {
-    *baserepo.BaseRepository[entity.Booking]
+    *database.GormBaseRepository[entity.Booking]
 }
 
 func NewBookingRepository(db database.Database) repository.BookingCommandRepository {
