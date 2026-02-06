@@ -64,16 +64,14 @@ func LoadDomainConfig(domainPath string) *Config {
 	if err := domainViper.MergeConfigMap(globalViper.AllSettings()); err != nil {
 		panic(fmt.Errorf("Error merging global settings: %v", err))
 	}
-	// for k, v := range globalViper.AllSettings() {
-	// 	domainViper.Set(k, v)
-	// }
 
 	if domainPath != "" {
 		content, err := processingFile(domainPath)
-		if err == nil {
-			domainViper.SetConfigType("yaml")
-			domainViper.MergeConfig(strings.NewReader(content))
+		if err != nil {
+			panic(fmt.Errorf("failed to load domain config %s: %w", domainPath, err))
 		}
+		domainViper.SetConfigType("yaml")
+		domainViper.MergeConfig(strings.NewReader(content))
 	}
 
 	var cfg Config

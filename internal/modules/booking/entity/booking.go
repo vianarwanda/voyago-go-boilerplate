@@ -2,6 +2,7 @@ package entity
 
 import (
 	"fmt"
+	"math"
 	"voyago/core-api/internal/pkg/apperror"
 )
 
@@ -70,6 +71,21 @@ func (e *Booking) Validate() error {
 		return ErrBookingDetailRequired
 	}
 
+	// epsilon defines the threshold for floating-point equality comparisons.
+	//
+	// WHY:
+	// Due to the IEEE 754 standard, floating-point numbers cannot always represent
+	// decimal fractions exactly (e.g., 0.1 + 0.2 != 0.3).
+	//
+	// LEGITIMATE CASE:
+	// A calculation like 19.99 * 3 might result in 59.970000000000006 or 59.96999999999999,
+	// causing direct equality checks (==) to fail.
+	//
+	// USAGE:
+	// Instead of: if total == expected
+	// Use:        if math.Abs(total - expected) < epsilon
+	const epsilon = 0.001
+
 	// Ensure the header TotalAmount matches the sum of all line item subtotals.
 	// This prevents price manipulation and ensures data integrity.
 	var calculatedAmount float64
@@ -77,7 +93,7 @@ func (e *Booking) Validate() error {
 		calculatedAmount += detail.SubTotal
 
 		expectedSubTotal := detail.PricePerUnit * float64(detail.Qty)
-		if detail.SubTotal != expectedSubTotal {
+		if math.Abs(detail.SubTotal-expectedSubTotal) > epsilon {
 			return apperror.NewPermanent(
 				CodeBookingAmountInconsistent,
 				fmt.Sprintf("invalid subtotal for product %s", detail.ProductID),
@@ -87,7 +103,7 @@ func (e *Booking) Validate() error {
 	}
 
 	// We use a small epsilon or direct comparison depending on your precision needs.
-	if e.TotalAmount != calculatedAmount {
+	if math.Abs(e.TotalAmount-calculatedAmount) > epsilon {
 		return ErrBookingAmountInconsistent
 	}
 

@@ -117,7 +117,7 @@ func (r *bookingRepository) FindByID(ctx context.Context, id string) (*entity.Bo
 			"updated_at",
 		).
 		Where("id = ?", id).
-		Preload("BookingDetails", func(db *gorm.DB) *gorm.DB {
+		Preload("Details", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id", "booking_id", "product_id", "product_name", "qty", "price_per_unit", "sub_total")
 		}).
 		First(&booking).

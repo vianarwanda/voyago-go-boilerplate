@@ -153,7 +153,7 @@ func (uc *createBookingUseCase) Execute(ctx context.Context, req *CreateBookingR
 	}
 
 	e := entity.Booking{
-		ID:            uid.NewUUID(),
+		ID:            bookingID,
 		BookingCode:   req.BookingCode,
 		UserID:        req.UserID,
 		TotalAmount:   req.TotalAmount,
@@ -265,7 +265,9 @@ func logAndTraceError(span tracer.Span, log logger.Logger, err error, msg string
 	logFields := map[string]any{"error": err.Error()}
 	if errors.As(err, &appErr) {
 		if appErr.Err != nil {
-			logFields["internal_detail"] = appErr.Err.Error()
+			if appErr.Err != nil {
+				logFields["internal_detail"] = appErr.Err.Error()
+			}
 		}
 		logFields["retryable"] = appErr.IsRetryable()
 	}

@@ -22,11 +22,11 @@ type CreateBookingDetailRequest struct {
 }
 
 type CreateBookingResponse struct {
-	BookingID   string                       `json:"id"`
-	BookingCode string                       `json:"code"`
-	UserID      string                       `json:"user_id"`
-	TotalAmount float64                      `json:"total_amount"`
-	Details     []CreateBookingDetailRequest `json:"details"`
+	BookingID   string                        `json:"id"`
+	BookingCode string                        `json:"code"`
+	UserID      string                        `json:"user_id"`
+	TotalAmount float64                       `json:"total_amount"`
+	Details     []CreateBookingDetailResponse `json:"details"`
 }
 
 type CreateBookingDetailResponse struct {

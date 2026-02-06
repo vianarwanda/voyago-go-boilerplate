@@ -177,16 +177,6 @@ func (m *Telemetrist) HandleLog() fiber.Handler {
 	}
 }
 
-func (m *Telemetrist) getFiberErrStatusCode(err error) int {
-	statusCode := 500
-	if fiberErr, ok := err.(*fiber.Error); ok {
-		statusCode = fiberErr.Code
-	} else {
-		statusCode = fiber.StatusInternalServerError
-	}
-	return statusCode
-}
-
 // ParseBody processes raw bytes from request or response, enforces size limits,
 // and applies sensitivity masking if the content type is JSON.
 func (m *Telemetrist) parseBody(body []byte, contentType string) any {
