@@ -1,0 +1,48 @@
+# Compiled output
+/build
+/bin
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+go.work.sum
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs and editors
+/.idea
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+*.sublime-workspace
+*.swp
+*.swo
+
+# dotenv environment variable files
+.env
+.env.*
+!.env.example
+
+# Module config files (use .example.yaml as templates)
+config/*/config.yaml
+!config/*/config.example.yaml
+
+# temp directory
+.temp
+.tmp
+
+# Runtime data
+*.pid
+*.pid.lock
