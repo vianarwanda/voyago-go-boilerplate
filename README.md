@@ -141,31 +141,41 @@ Entities **must** include:
 
 ```go
 // entity/booking.go
-package entity
-
-// Domain-specific error codes
-const (
-    CodeBookingNotFound          = "booking.not_found"
-    CodeBookingCodeAlreadyExists = "booking.booking_code.already_exists"
-)
-
-var ErrBookingNotFound = apperror.NewPermanent(
-    CodeBookingNotFound,
-    "booking record not found",
-)
-
-type Booking struct {
-    ID          string `gorm:"column:id;type:uuid;primaryKey"`
-    BookingCode string `gorm:"column:booking_code;type:varchar(50);not null;unique"`
-    // ... additional fields
-}
-
 func (e *Booking) Validate() error {
     // Domain validation logic
     if len(e.Details) == 0 {
         return ErrBookingDetailRequired
     }
     return nil
+}
+```
+
+---
+
+### 4. Repository Standards (Mandatory)
+
+Repositories are divided into **Command** (Write) and **Query** (Read) to follow the CQRS pattern.
+
+#### Command Repository (Write)
+- **Error Mapping**: MUST NOT return raw DB errors. Use `database.MapDBError` to translate to `apperror.AppError`.
+- **Atomicity**: MUST respect the `ctx` to participate in transactions managed by `TransactionManager`.
+- **Generic CRUD**: Use `BaseRepository` embedding to reduce boilerplate.
+
+#### Query Repository (Read)
+- **Selective Retrieval**: Always use `.Select()` to specify fields. **AVOID `SELECT *`**.
+- **Nullable vs Error**: For "Find" operations, return `(nil, nil)` if a record is not found (unless the business rule requires an error).
+- **Preload Discipline**: Only preload relationships that are strictly necessary to avoid N+1 issues.
+
+#### Implementation Naming
+Like UseCases, Repository implementations MUST be private.
+```go
+// repository/command/booking.go
+type bookingRepository struct {
+    *baserepo.BaseRepository[entity.Booking]
+}
+
+func NewBookingRepository(db database.Database) repository.BookingCommandRepository {
+    return &bookingRepository{...}
 }
 ```
 
