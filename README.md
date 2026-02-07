@@ -436,9 +436,10 @@ if existingBooking != nil {
     return nil, ErrBookingCodeExists.WithDetail("booking_code", req.BookingCode)
 }
 
-// Repository error wrapping
+// Repository using MapToDBError helper
 if err != nil {
-    return apperror.ErrCodeDbConflict.WithError(err)
+    // Automatically maps unique constraints, foreign keys, etc.
+    return repository.MapToDBError(err) 
 }
 ```
 
