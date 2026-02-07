@@ -84,12 +84,12 @@ TEST_DB_PASSWORD=your_password go test -tags="integration e2e" -v ./test/...
 
 ## Environment Variables
 
-| Variable | Description | Default | Required |
-|----------|-------------|---------|----------|
+| Variable | Description | Default | Req |
+|----------|-------------|---------|-----|
 | `TEST_DB_HOST` | Database host | `localhost` | No |
 | `TEST_DB_PORT` | Database port | `5432` | No |
 | `TEST_DB_USER` | Database user | `booking_user` | No |
-| `TEST_DB_PASSWORD` | Database password | _(empty)_ | **Yes** |
+| `TEST_DB_PASSWORD` | Database password | - | **Yes** |
 | `TEST_DB_NAME` | Database name | `voyago_test` | No |
 
 ## Security Note
@@ -114,8 +114,8 @@ TEST_DB_PASSWORD=your_password go test -tags="integration e2e" -v ./test/...
 | **Entity** | - | 100% | ✅ Perfect |
 | **UseCase** | - | 93.1% | ✅ Excellent |
 | **Handler** | - | ~90% | ✅ Excellent |
-| **Integration** | - | Repository layer | ✅ |
-| **E2E** | - | Full HTTP stack | ✅ |
+| **Integration** | - | Repo | ✅ |
+| **E2E** | - | HTTP | ✅ |
 
 ## Troubleshooting
 

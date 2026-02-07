@@ -186,18 +186,18 @@ All booking-specific errors use the `BOOKING_*` prefix for easy identification.
 
 ### Entity Errors
 
-| Code                          | Message                     | HTTP Status | Description                                                              |
-|-------------------------------|-----------------------------|-------------|--------------------------------------------------------------------------|
-| `BOOKING_NOT_FOUND`           | booking record not found    | 404         | The requested booking ID does not exist in the database                  |
-| `BOOKING_CODE_ALREADY_EXISTS` | booking code already exists | 409         | Attempted to create a booking with a code that already exists (duplicate)|
+| Code | Message | Status| Note |
+|------|---------|-------|------|
+| `BOOKING_NOT_FOUND` | record not found | 404 | Booking ID not in database |
+| `BOOKING_CODE_ALREADY_EXISTS` | code already exists | 409 | Duplicate booking code exists |
 
 ### Validation Errors
 
-| Code                          | Message                                           | HTTP Status | Description                                                                      |
-|-------------------------------|---------------------------------------------------|-------------|----------------------------------------------------------------------------------|
-| `BOOKING_DETAILS_REQUIRED`             | booking must have at least one detail                 | 400         | The `details` array is empty or missing                                          |
-| `BOOKING_AMOUNT_INCONSISTENT`          | total amount does not match with details subtotal     | 400         | The `total_amount` field does not equal the sum of all detail `sub_total` values |
-| `BOOKING_DETAIL_SUBTOTAL_INCONSISTENT` | detail subtotal does not match with expected subtotal | 400         | A detail item's subtotal does not match its quantity multiplied by price         |
+| Code | Message | Status| Note |
+|------|---------|-------|------|
+| `BOOKING_DETAILS_REQUIRED` | details required | 400 | `details` array is empty |
+| `BOOKING_AMOUNT_INCONSISTENT` | amount mismatch | 400 | `total_amount` != sum of line items |
+| `BOOKING_DETAIL_SUBTOTAL_INCONSISTENT`| subtotal mismatch | 400 | item subtotal != qty x price |
 
 ### Infrastructure Errors
 > Common infrastructure errors (e.g., `INVALID_REQUEST`, `INTERNAL_ERROR`) are documented in the [Root README](../../../../README.md#infrastructure-error-codes).
@@ -210,15 +210,15 @@ All booking-specific errors use the `BOOKING_*` prefix for easy identification.
 
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
-| `id` | uuid | PRIMARY KEY | Auto-generated booking ID |
-| `booking_code` | varchar(50) | NOT NULL, UNIQUE | User-provided or generated booking code |
-| `user_id` | uuid | NOT NULL | Reference to user who created the booking |
-| `total_amount` | decimal(15,2) | NOT NULL, DEFAULT 0 | Total booking amount |
-| `status` | varchar(20) | NOT NULL, DEFAULT 'PENDING' | Current booking status |
-| `payment_status` | varchar(20) | NOT NULL, DEFAULT 'UNPAID' | Payment status |
-| `created_at` | bigint | NOT NULL | Unix timestamp (milliseconds) |
-| `updated_at` | bigint | NULL | Unix timestamp (milliseconds) |
-| `deleted_at` | bigint | NULL | Soft delete timestamp |
+| `id` | uuid | PK | Booking ID |
+| `booking_code` | varchar(50) | NOT NULL, UNIQUE | Unique code |
+| `user_id` | uuid | NOT NULL | User reference |
+| `total_amount` | decimal(15,2) | NOT NULL | Total amount |
+| `status` | varchar(20) | NOT NULL | 'PENDING' etc |
+| `payment_status` | varchar(20) | NOT NULL | 'UNPAID' etc |
+| `created_at` | bigint | NOT NULL | Unix ms |
+| `updated_at` | bigint | NULL | Unix ms |
+| `deleted_at` | bigint | NULL | Soft delete |
 
 **Status Values:**
 - `PENDING` - Initial state after creation
@@ -230,15 +230,15 @@ All booking-specific errors use the `BOOKING_*` prefix for easy identification.
 
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
-| `id` | uuid | PRIMARY KEY | Auto-generated detail ID |
-| `booking_id` | uuid | NOT NULL, FOREIGN KEY | Reference to parent booking |
-| `product_id` | uuid | NOT NULL | Reference to product |
-| `product_name` | varchar(100) | NULL | Snapshot of product name at booking time |
-| `qty` | integer | NOT NULL | Quantity ordered |
-| `price_per_unit` | decimal(15,2) | NOT NULL | Price per unit at booking time |
-| `sub_total` | decimal(15,2) | NOT NULL | Calculated subtotal (qty × price_per_unit) |
-| `created_at` | bigint | NOT NULL | Unix timestamp (milliseconds) |
-| `updated_at` | bigint | NULL | Unix timestamp (milliseconds) |
+| `id` | uuid | PK | Detail ID |
+| `booking_id` | uuid | FK | Booking ref |
+| `product_id` | uuid | NOT NULL | Product ref |
+| `product_name`| varchar(100)| NULL | Product name |
+| `qty` | integer | NOT NULL | Quantity |
+| `price_per_unit`| decimal(15,2)| NOT NULL | Unit price |
+| `sub_total` | decimal(15,2)| NOT NULL | qty x price |
+| `created_at`| bigint | NOT NULL | Unix ms |
+| `updated_at`| bigint | NULL | Unix ms |
 
 ---
 
