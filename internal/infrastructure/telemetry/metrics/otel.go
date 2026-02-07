@@ -49,7 +49,7 @@ func NewOTelMetrics(addr, namespace string, tags []string) (Metrics, error) {
 
 	httpView := sdkmetric.NewView(
 		sdkmetric.Instrument{
-			Name: "http_request_duration", // Pastikan ini sesuai hasil sanitizeName (http.request.duration -> http_request_duration)
+			Name: "http_request_duration",
 		},
 		sdkmetric.Stream{
 			Aggregation: sdkmetric.AggregationExplicitBucketHistogram{

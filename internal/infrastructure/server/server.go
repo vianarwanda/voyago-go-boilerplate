@@ -87,7 +87,7 @@ func errorHdlr(c *fiber.Ctx, err error) error {
 	var details any
 	var isRetryable bool
 
-	// Cek apakah ini AppError
+	// check if it appError
 	if e, ok := err.(*apperror.AppError); ok {
 		code = e.GetHttpStatus()
 		message = e.Message
@@ -95,13 +95,13 @@ func errorHdlr(c *fiber.Ctx, err error) error {
 		details = e.Details
 		isRetryable = e.IsRetryable()
 	} else if e, ok := err.(*fiber.Error); ok {
-		// Error dari Fiber sendiri (misal 404 route not found)
+		// Error from Fiber itself (e.g. 404 route not found)
 		code = e.Code
 		message = e.Message
 		errCode = fmt.Sprintf("ERR_%d", e.Code)
 	}
 
-	// Ambil Trace ID dari locals yang udah kita set di middleware
+	// get trace id from locals
 	traceID, _ := c.Locals("trace_id").(string)
 
 	return c.Status(code).JSON(response.ResponseApi{

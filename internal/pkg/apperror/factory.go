@@ -13,10 +13,10 @@ func New(code, message string, kind Kind, err ...error) *AppError {
 	return appErr
 }
 
-// NewPermanent creates an error with KindPermanent.
+// NewPersistance creates an error with KindPersistance.
 // Optional: Pass an existing error as the 3rd argument to wrap it.
-func NewPermanent(code, message string, err ...error) *AppError {
-	return New(code, message, KindPermanent, err...)
+func NewPersistance(code, message string, err ...error) *AppError {
+	return New(code, message, KindPersistance, err...)
 }
 
 // NewTransient creates an error with KindTransient.

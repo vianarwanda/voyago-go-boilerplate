@@ -120,13 +120,13 @@ func mapPgError(err error) error {
 
 	// Unique Violation (e.g., duplicate email/code)
 	case "23505": // Unique Violation
-		return apperror.NewPermanent(apperror.CodeDbConflict, "duplicate data", pgErr).
+		return apperror.NewPersistance(apperror.CodeDbConflict, "duplicate data", pgErr).
 			WithDetail("constraint", pgErr.ConstraintName).
 			WithDetail("detail", pgErr.Detail)
 
 	// Other Constraint Violations (Foreign Key, Not Null, etc.)
 	case "23503", "23502", "23000":
-		return apperror.NewPermanent(apperror.CodeDbConstraint, "database constraint violation: "+pgErr.Message, pgErr)
+		return apperror.NewPersistance(apperror.CodeDbConstraint, "database constraint violation: "+pgErr.Message, pgErr)
 
 	// --- Internal Errors (Developer / Config Issue) ---
 

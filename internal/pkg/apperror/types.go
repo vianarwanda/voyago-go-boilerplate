@@ -10,9 +10,9 @@ import (
 type Kind string
 
 const (
-	// KindPermanent represents errors that will fail again if retried
+	// KindPersistance represents errors that will fail again if retried
 	// without changing the input (e.g., Validation, Resource Conflicts).
-	KindPermanent Kind = "PERSISTANCE"
+	KindPersistance Kind = "PERSISTANCE"
 
 	// KindTransient represents temporary failures that might succeed
 	// upon retry (e.g., Network Timeouts, Database Deadlocks).
@@ -116,7 +116,7 @@ func (e *AppError) ToMap() map[string]any {
 // GetHttpStatus resolves the appropriate HTTP status code for the error.
 // It first attempts to match the 'Code' against a predefined status map.
 // If no match is found, it falls back to a status based on the 'Kind':
-// - KindPermanent -> 400 (Bad Request)
+// - KindPersistance -> 400 (Bad Request)
 // - KindTransient -> 503 (Service Unavailable)
 // - KindInternal  -> 500 (Internal Server Error)
 func (e *AppError) GetHttpStatus() int {
@@ -162,14 +162,14 @@ func (e *AppError) GetHttpStatus() int {
 		CodeNetworkAuthenticationRequired: 511,
 	}
 
-	// 2. Cek langsung ke map
+	// 2. direct check to map data
 	if status, exists := statusMapping[strings.ToUpper(e.Code)]; exists {
 		return status
 	}
 
 	// 3. fallback
 	switch e.Kind {
-	case KindPermanent:
+	case KindPersistance:
 		return 400
 	case KindTransient:
 		return 503

@@ -15,22 +15,22 @@ const (
 )
 
 var (
-	ErrBookingNotFound = apperror.NewPermanent(
+	ErrBookingNotFound = apperror.NewPersistance(
 		CodeBookingNotFound,
 		"booking record not found",
 	)
 
-	ErrBookingCodeAlreadyExists = apperror.NewPermanent(
+	ErrBookingCodeAlreadyExists = apperror.NewPersistance(
 		CodeBookingCodeAlreadyExists,
 		"booking code already exists",
 	)
 
-	ErrBookingAmountInconsistent = apperror.NewPermanent(
+	ErrBookingAmountInconsistent = apperror.NewPersistance(
 		CodeBookingAmountInconsistent,
 		"total amount does not match with details subtotal",
 	)
 
-	ErrBookingDetailRequired = apperror.NewPermanent(
+	ErrBookingDetailRequired = apperror.NewPersistance(
 		CodeBookingDetailRequired,
 		"booking must have at least one detail",
 	)
@@ -94,7 +94,7 @@ func (e *Booking) Validate() error {
 
 		expectedSubTotal := detail.PricePerUnit * float64(detail.Qty)
 		if math.Abs(detail.SubTotal-expectedSubTotal) > epsilon {
-			return apperror.NewPermanent(
+			return apperror.NewPersistance(
 				CodeBookingAmountInconsistent,
 				fmt.Sprintf("invalid subtotal for product %s", detail.ProductID),
 				fmt.Errorf("expected: %.2f, got: %.2f", expectedSubTotal, detail.SubTotal),
