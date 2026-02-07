@@ -12,15 +12,11 @@ test/
 └── helper/        # Shared test utilities
 ```
 
----
-
 ## Prerequisites
 
 ### For All Tests
 - Go 1.25.7
 - PostgreSQL 16 (for integration/e2e tests)
-
----
 
 ### Test Database Setup
 
@@ -52,8 +48,6 @@ test/
    # Option 2: Use direnv or similar tool
    # Option 3: Load from .env.test in your test runner
    ```
-
----
 
 ## Running Tests
 
@@ -90,8 +84,6 @@ TEST_DB_PASSWORD=your_password \
 TEST_DB_PASSWORD=your_password \
   go test -tags="integration e2e" -v ./test/...
 ```
-
----
 
 ## Environment Variables
 
