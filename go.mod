@@ -4,6 +4,7 @@ go 1.25.7
 
 require (
 	github.com/jackc/pgx/v5 v5.6.0
+	github.com/stretchr/testify v1.11.1
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.40.0
 	gorm.io/gorm v1.25.12
 )
@@ -63,7 +64,7 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/secure-systems-lab/go-securesystemslib v0.9.0 // indirect
 	github.com/shirou/gopsutil/v4 v4.26.1 // indirect
-	github.com/stretchr/testify v1.11.1 // indirect
+	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/theckman/httpforwarded v0.4.0 // indirect
 	github.com/tinylib/msgp v1.2.5 // indirect
 	github.com/tklauser/go-sysconf v0.3.16 // indirect

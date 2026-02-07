@@ -179,7 +179,9 @@ func (uc *createBookingUseCase) Execute(ctx context.Context, req *CreateBookingR
 		var appErr *apperror.AppError
 		logFields := map[string]any{"error": err.Error()}
 		if errors.As(err, &appErr) {
-			logFields["internal_detail"] = appErr.Err.Error()
+			if appErr.Err != nil {
+				logFields["internal_detail"] = appErr.Err.Error()
+			}
 			logFields["retryable"] = appErr.IsRetryable()
 		}
 		log.WithFields(logFields).Warn("domain logic validation failed")
@@ -264,9 +266,7 @@ func logAndTraceError(span tracer.Span, log logger.Logger, err error, msg string
 	logFields := map[string]any{"error": err.Error()}
 	if errors.As(err, &appErr) {
 		if appErr.Err != nil {
-			if appErr.Err != nil {
-				logFields["internal_detail"] = appErr.Err.Error()
-			}
+			logFields["internal_detail"] = appErr.Err.Error()
 		}
 		logFields["retryable"] = appErr.IsRetryable()
 	}
