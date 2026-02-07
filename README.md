@@ -307,7 +307,34 @@ All errors in the system **must** use the `apperror.AppError` standardized struc
 >
 > **Best Practice:**
 > 1. **Define errors at the top of entity file** (e.g., `booking.go`, NOT `booking_errors.go`)
-> 2. **Use SCREAMING_SNAKE_CASE** with module prefix: `{MODULE}_{RESOURCE}_{ERROR_TYPE}`
+> 2. **Use SCREAMING_SNAKE_CASE** with module prefix: `{MODULE}_{RESOURCE}_{ERROR_TYPE}` (e.g., `BOOKING_AMOUNT_INCONSISTENT`)
+
+### Modular HTTP Mapping (`RegisterStatus`)
+
+If a module requires a specific HTTP status code (e.g., `409 Conflict`), you can register it modularly. If not registered, it will fallback to a generic status based on its `Kind` (usually `400 Bad Request` for persistence errors).
+
+**How to register:**
+Call `apperror.RegisterStatus` in the `init()` function of your entity or a dedicated registry file:
+
+```go
+func init() {
+    apperror.RegisterStatus(CodeBookingCodeAlreadyExists, 409)
+}
+```
+
+### Standard Error Response Structure
+
+The system uses a **FLAT** response structure (no nesting for error codes) for better frontend integration.
+
+```json
+{
+  "success": false,
+  "message": "Human readable error message",
+  "error_code": "MODULE_RESOURCE_ERROR_TYPE",
+  "errors": { ... },
+  "trace_id": "uuid-trace-id"
+}
+```
 > 3. Document your errors if you define any (see Error Documentation section)
 > 4. Never reuse error codes across modules
 
@@ -501,9 +528,9 @@ ErrCodeConflict            // Conflict                         (PERSISTANCE, 409
 // ... and many more HTTP status codes
 ```
 
-### Error Documentation (Recommended)
+### Error Documentation
 
-**If you define domain-specific errors, document them.** Create `{MODULE}/docs/errors.md` or add an **Error Codes** section to your module's README.
+**If you define domain-specific errors, you MUST document them.** Add an **Error Codes** section to your module's `README.md`.
 
 #### Required Documentation Format
 

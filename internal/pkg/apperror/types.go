@@ -113,61 +113,77 @@ func (e *AppError) ToMap() map[string]any {
 	}
 }
 
+var (
+	// statusRegistry is a thread-safe (assuming init-time registration) map
+	// for module-specific error code to HTTP status mapping.
+	statusRegistry = make(map[string]int)
+)
+
+// RegisterStatus allows modular registration of error codes to HTTP status codes.
+// This should typically be called in a module's init() or during bootstrap.
+func RegisterStatus(code string, status int) {
+	statusRegistry[code] = status
+}
+
+func init() {
+	// Initialize with default infrastructure/common mappings
+	statusRegistry[CodeDbConnectionFailed] = 500
+	statusRegistry[CodeDbTimeout] = 500
+	statusRegistry[CodeDbDeadlock] = 500
+	statusRegistry[CodeDbConstraint] = 500
+	statusRegistry[CodeDbConflict] = 409
+	statusRegistry[CodeInternalError] = 500
+
+	statusRegistry[CodeMalformedRequest] = 400
+	statusRegistry[CodeInvalidRequest] = 400
+	statusRegistry[CodeValidation] = 400
+	statusRegistry[CodeUnauthorized] = 401
+	statusRegistry[CodeForbidden] = 403
+	statusRegistry[CodeNotFound] = 404
+	statusRegistry[CodeMethodNotAllowed] = 405
+	statusRegistry[CodeNotAcceptable] = 406
+	statusRegistry[CodeRequestTimeout] = 408
+	statusRegistry[CodeConflict] = 409
+	statusRegistry[CodeGone] = 410
+	statusRegistry[CodeLengthRequired] = 411
+	statusRegistry[CodePreconditionFailed] = 412
+	statusRegistry[CodePayloadTooLarge] = 413
+	statusRegistry[CodeURITooLong] = 414
+	statusRegistry[CodeUnsupportedMediaType] = 415
+	statusRegistry[CodeRangeNotSatisfiable] = 416
+	statusRegistry[CodeExpectationFailed] = 417
+	statusRegistry[CodeTeapot] = 418
+	statusRegistry[CodeMisdirectedRequest] = 421
+	statusRegistry[CodeUnprocessableEntity] = 422
+	statusRegistry[CodeLocked] = 423
+	statusRegistry[CodeFailedDependency] = 424
+	statusRegistry[CodeTooEarly] = 425
+	statusRegistry[CodeUpgradeRequired] = 426
+	statusRegistry[CodePreconditionRequired] = 428
+	statusRegistry[CodeTooManyRequests] = 429
+	statusRegistry[CodeRequestHeaderFieldsTooLarge] = 431
+	statusRegistry[CodeUnavailableForLegalReasons] = 451
+	statusRegistry[CodeNetworkAuthenticationRequired] = 511
+}
+
 // GetHttpStatus resolves the appropriate HTTP status code for the error.
-// It first attempts to match the 'Code' against a predefined status map.
+// It first attempts to match the 'Code' against the statusRegistry.
 // If no match is found, it falls back to a status based on the 'Kind':
 // - KindPersistance -> 400 (Bad Request)
 // - KindTransient -> 503 (Service Unavailable)
 // - KindInternal  -> 500 (Internal Server Error)
 func (e *AppError) GetHttpStatus() int {
-	statusMapping := map[string]int{
-		// Infrastructure / 500s
-		CodeDbConnectionFailed: 500,
-		CodeDbTimeout:          500,
-		CodeDbDeadlock:         500,
-		CodeDbConstraint:       500,
-		CodeDbConflict:         409,
-		CodeInternalError:      500,
-
-		// Client Errors / 400s
-		CodeMalformedRequest:              400,
-		CodeInvalidRequest:                400,
-		CodeValidation:                    400,
-		CodeUnauthorized:                  401,
-		CodeForbidden:                     403,
-		CodeNotFound:                      404,
-		CodeMethodNotAllowed:              405,
-		CodeNotAcceptable:                 406,
-		CodeRequestTimeout:                408,
-		CodeConflict:                      409,
-		CodeGone:                          410,
-		CodeLengthRequired:                411,
-		CodePreconditionFailed:            412,
-		CodePayloadTooLarge:               413,
-		CodeURITooLong:                    414,
-		CodeUnsupportedMediaType:          415,
-		CodeRangeNotSatisfiable:           416,
-		CodeExpectationFailed:             417,
-		CodeTeapot:                        418,
-		CodeMisdirectedRequest:            421,
-		CodeUnprocessableEntity:           422,
-		CodeLocked:                        423,
-		CodeFailedDependency:              424,
-		CodeTooEarly:                      425,
-		CodeUpgradeRequired:               426,
-		CodePreconditionRequired:          428,
-		CodeTooManyRequests:               429,
-		CodeRequestHeaderFieldsTooLarge:   431,
-		CodeUnavailableForLegalReasons:    451,
-		CodeNetworkAuthenticationRequired: 511,
-	}
-
-	// 2. direct check to map data
-	if status, exists := statusMapping[strings.ToUpper(e.Code)]; exists {
+	// 1. Check direct code mapping in registry
+	if status, exists := statusRegistry[e.Code]; exists {
 		return status
 	}
 
-	// 3. fallback
+	// 2. Case-insensitive check (legacy support if needed)
+	if status, exists := statusRegistry[strings.ToUpper(e.Code)]; exists {
+		return status
+	}
+
+	// 3. Fallback to Kind
 	switch e.Kind {
 	case KindPersistance:
 		return 400

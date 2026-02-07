@@ -124,16 +124,17 @@ See [Error Codes](#error-codes) section below for complete list.
 ```json
 {
   "success": false,
-  "message": "Invalid request",
-  "error": {
-    "code": "INVALID_REQUEST",
-    "details": [
-      {
-        "field": "code",
-        "message": "Booking code must be at least 3 characters"
-      }
-    ]
-  }
+  "message": "Validation failed",
+  "error_code": "INVALID_REQUEST",
+  "errors": [
+    {
+      "code": "required",
+      "field": "code",
+      "message": "Booking code is required",
+      "param": ""
+    }
+  ],
+  "trace_id": "bace8705956301997fceea98ef5deb91"
 }
 ```
 
@@ -141,24 +142,19 @@ See [Error Codes](#error-codes) section below for complete list.
 ```json
 {
   "success": false,
-  "message": "total amount does not match with details subtotal",
-  "error": {
-    "code": "BOOKING_AMOUNT_INCONSISTENT"
-  }
+  "message": "invalid subtotal for product 019c3162-f0e3-71d7-8aae-7a96c11a79bc",
+  "error_code": "BOOKING_AMOUNT_INCONSISTENT",
+  "trace_id": "bace8705956301997fceea98ef5deb91"
 }
 ```
 
 **Example - Duplicate Code (409 Conflict):**
 ```json
 {
-  "success": false,
-  "message": "booking code already exists",
-  "error": {
-    "code": "BOOKING_CODE_ALREADY_EXISTS",
-    "details": {
-      "booking_code": "BKG-2024-001"
-    }
-  }
+    "success": false,
+    "message": "booking code already exists",
+    "error_code": "BOOKING_CODE_ALREADY_EXISTS",
+    "trace_id": "bace8705956301997fceea98ef5deb91"
 }
 ```
 
@@ -193,7 +189,7 @@ All booking-specific errors use the `BOOKING_*` prefix for easy identification.
 | Code | Message | HTTP Status | Description |
 |------|---------|-------------|-------------|
 | `BOOKING_NOT_FOUND` | booking record not found | 404 | The requested booking ID does not exist in the database |
-| `BOOKING_CODE_ALREADY_EXISTS` | booking code already exists | 409 | Attempted to create a booking with a code that already exists (duplicate) |
+| `BOOKING_CODE_ALREADY_EXISTS` | booking code already exists | 400 | Attempted to create a booking with a code that already exists (duplicate) |
 
 ### Validation Errors
 

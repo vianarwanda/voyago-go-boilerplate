@@ -14,6 +14,10 @@ const (
 	CodeBookingDetailRequired     = "BOOKING_DETAIL_REQUIRED"
 )
 
+func init() {
+	apperror.RegisterStatus(CodeBookingCodeAlreadyExists, 409)
+}
+
 var (
 	ErrBookingNotFound = apperror.NewPersistance(
 		CodeBookingNotFound,
