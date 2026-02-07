@@ -14,10 +14,6 @@ const (
 	CodeBookingDetailsRequired    = "BOOKING_DETAILS_REQUIRED"
 )
 
-func init() {
-	apperror.RegisterStatus(CodeBookingCodeAlreadyExists, 409)
-}
-
 var (
 	ErrBookingNotFound = apperror.NewPersistance(
 		CodeBookingNotFound,
@@ -39,6 +35,14 @@ var (
 		"booking must have at least one detail",
 	)
 )
+
+func init() {
+	// [OPTIONAL] Register custom HTTP status codes for specific domain errors.
+	// This is NOT mandatory. If an error code is not registered here,
+	// it will automatically fallback to the default status based on its apperror.Kind
+	// (e.g., KindPersistance -> 400, KindInternal -> 500).
+	apperror.RegisterStatus(CodeBookingCodeAlreadyExists, 409)
+}
 
 type BookingStatus string
 

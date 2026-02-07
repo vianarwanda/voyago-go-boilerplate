@@ -421,6 +421,12 @@ var (
     )
 )
 
+func init() {
+    // [OPTIONAL] Register custom HTTP status codes.
+    // Falls back to default Kind-based status if not registered.
+    apperror.RegisterStatus(CodeBookingCodeAlreadyExists, 409)
+}
+
 // Then your entity struct below
 type Booking struct {
     // ...
