@@ -12,11 +12,15 @@ test/
 └── helper/        # Shared test utilities
 ```
 
+---
+
 ## Prerequisites
 
 ### For All Tests
 - Go 1.25.7
 - PostgreSQL 16 (for integration/e2e tests)
+
+---
 
 ### Test Database Setup
 
@@ -49,6 +53,8 @@ test/
    # Option 3: Load from .env.test in your test runner
    ```
 
+---
+
 ## Running Tests
 
 ### Unit Tests (Default, Fast)
@@ -64,7 +70,8 @@ go tool cover -html=coverage.out
 ### Integration Tests (Requires DB)
 ```bash
 # Run integration tests
-TEST_DB_PASSWORD=your_password go test -tags=integration -v ./test/integration/...
+TEST_DB_PASSWORD=your_password \
+  go test -tags=integration -v ./test/integration/...
 
 # Or with .env.test loaded
 go test -tags=integration -v ./test/integration/...
@@ -73,14 +80,18 @@ go test -tags=integration -v ./test/integration/...
 ### E2E Tests (Full Stack)
 ```bash
 # Run E2E tests
-TEST_DB_PASSWORD=your_password go test -tags=e2e -v ./test/e2e/...
+TEST_DB_PASSWORD=your_password \
+  go test -tags=e2e -v ./test/e2e/...
 ```
 
 ### All Tests
 ```bash
 # Run everything
-TEST_DB_PASSWORD=your_password go test -tags="integration e2e" -v ./test/...
+TEST_DB_PASSWORD=your_password \
+  go test -tags="integration e2e" -v ./test/...
 ```
+
+---
 
 ## Environment Variables
 
@@ -92,6 +103,8 @@ TEST_DB_PASSWORD=your_password go test -tags="integration e2e" -v ./test/...
 | `TEST_DB_PASSWORD` | Database password | - | **Yes** |
 | `TEST_DB_NAME` | Database name | `voyago_test` | No |
 
+---
+
 ## Security Note
 
 ⚠️ **NEVER commit `.env.test` to git!**
@@ -99,6 +112,8 @@ TEST_DB_PASSWORD=your_password go test -tags="integration e2e" -v ./test/...
 - `.env.test` is in `.gitignore` to prevent credential leaks
 - Use `.env.test.example` as a template
 - Each developer should create their own `.env.test` locally
+
+---
 
 ## Test Coverage Goals
 
@@ -116,6 +131,8 @@ TEST_DB_PASSWORD=your_password go test -tags="integration e2e" -v ./test/...
 | **Handler** | - | ~90% | ✅ Excellent |
 | **Integration** | - | Repo | ✅ |
 | **E2E** | - | HTTP | ✅ |
+
+---
 
 ## Troubleshooting
 
