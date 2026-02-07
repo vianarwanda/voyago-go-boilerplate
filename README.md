@@ -311,6 +311,23 @@ All errors in the system **must** use the `apperror.AppError` standardized struc
 > 3. Document your errors if you define any (see Error Documentation section)
 > 4. Never reuse error codes across modules
 
+### Global Error Handling Mechanism
+
+The system implements a **Global Error Handler** (see `internal/infrastructure/server/server.go`) that automatically intercepts and formats all errors returned by handlers.
+
+**How it works:**
+1. **Handlers propagate errors**: You simply return `error` from your handler (e.g., `return uc.Execute(...)`).
+2. **Middleware catches errors**: The server configuration (`fiber.Config.ErrorHandler`) intercepts any non-nil error.
+3. **Automatic Formatting**:
+   - `*apperror.AppError`: Formatted using its properties (Code, Message, Status).
+   - `*fiber.Error`: Formatted using Fiber's status code and message.
+   - `error` (unknown): Masked as `500 Internal Server Error` for security, with original error logged.
+
+**Benefit**:
+- **Consistent Structure**: Both success and error responses use the same `response.ResponseApi` struct.
+- **No Try-Catch**: You don't need to format JSON error responses manually in every handler.
+- **Security**: System panics and unknown errors are safely masked from clients.
+
 ### Error Structure
 
 ```go
