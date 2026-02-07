@@ -195,8 +195,9 @@ All booking-specific errors use the `BOOKING_*` prefix for easy identification.
 
 | Code                          | Message                                           | HTTP Status | Description                                                                      |
 |-------------------------------|---------------------------------------------------|-------------|----------------------------------------------------------------------------------|
-| `BOOKING_DETAILS_REQUIRED`    | booking must have at least one detail             | 400         | The `details` array is empty or missing                                          |
-| `BOOKING_AMOUNT_INCONSISTENT` | total amount does not match with details subtotal | 400         | The `total_amount` field does not equal the sum of all detail `sub_total` values |
+| `BOOKING_DETAILS_REQUIRED`             | booking must have at least one detail                 | 400         | The `details` array is empty or missing                                          |
+| `BOOKING_AMOUNT_INCONSISTENT`          | total amount does not match with details subtotal     | 400         | The `total_amount` field does not equal the sum of all detail `sub_total` values |
+| `BOOKING_DETAIL_SUBTOTAL_INCONSISTENT` | detail subtotal does not match with expected subtotal | 400         | A detail item's subtotal does not match its quantity multiplied by price         |
 
 ### Infrastructure Errors
 > Common infrastructure errors (e.g., `INVALID_REQUEST`, `INTERNAL_ERROR`) are documented in the [Root README](../../../../README.md#infrastructure-error-codes).

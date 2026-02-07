@@ -1,17 +1,17 @@
 package entity
 
 import (
-	"fmt"
 	"math"
 	"voyago/core-api/internal/pkg/apperror"
 )
 
 // [ENTITY STANDARD: DOMAIN SPECIFIC ERROR]
 const (
-	CodeBookingNotFound           = "BOOKING_NOT_FOUND"
-	CodeBookingCodeAlreadyExists  = "BOOKING_CODE_ALREADY_EXISTS"
-	CodeBookingAmountInconsistent = "BOOKING_AMOUNT_INCONSISTENT"
-	CodeBookingDetailsRequired    = "BOOKING_DETAILS_REQUIRED"
+	CodeBookingNotFound                   = "BOOKING_NOT_FOUND"
+	CodeBookingCodeAlreadyExists          = "BOOKING_CODE_ALREADY_EXISTS"
+	CodeBookingAmountInconsistent         = "BOOKING_AMOUNT_INCONSISTENT"
+	CodeBookingDetailSubtotalInconsistent = "BOOKING_DETAIL_SUBTOTAL_INCONSISTENT"
+	CodeBookingDetailsRequired            = "BOOKING_DETAILS_REQUIRED"
 )
 
 var (
@@ -28,6 +28,11 @@ var (
 	ErrBookingAmountInconsistent = apperror.NewPersistance(
 		CodeBookingAmountInconsistent,
 		"total amount does not match with details subtotal",
+	)
+
+	ErrBookingDetailSubtotalInconsistent = apperror.NewPersistance(
+		CodeBookingDetailSubtotalInconsistent,
+		"detail subtotal does not match with expected subtotal",
 	)
 
 	ErrBookingDetailsRequired = apperror.NewPersistance(
@@ -102,11 +107,16 @@ func (e *Booking) Validate() error {
 
 		expectedSubTotal := detail.PricePerUnit * float64(detail.Qty)
 		if math.Abs(detail.SubTotal-expectedSubTotal) > epsilon {
-			return apperror.NewPersistance(
-				CodeBookingAmountInconsistent,
-				fmt.Sprintf("invalid subtotal for product %s", detail.ProductID),
-				fmt.Errorf("expected: %.2f, got: %.2f", expectedSubTotal, detail.SubTotal),
-			)
+			return ErrBookingDetailSubtotalInconsistent.
+				WithDetail("product_id", detail.ProductID).
+				WithDetail("expected", expectedSubTotal).
+				WithDetail("actual", detail.SubTotal)
+			// return apperror.NewPersistance(
+			// 	CodeBookingDetailSubtotalInconsistent,
+			// 	fmt.Sprintf("invalid subtotal for product %s", detail.ProductID),
+			// 	fmt.Errorf("expected: %.2f, got: %.2f", expectedSubTotal, detail.SubTotal),
+			// ).WithDetail("expected", expectedSubTotal).
+			// 	WithDetail("actual", detail.SubTotal)
 		}
 	}
 

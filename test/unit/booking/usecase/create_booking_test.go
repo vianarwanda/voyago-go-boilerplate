@@ -303,7 +303,7 @@ func TestCreateBookingUseCase_Execute_ValidationError_SubTotalInconsistent(t *te
 	// Assert
 	assert.Error(t, err)
 	assert.Nil(t, resp)
-	assert.Contains(t, err.Error(), "invalid subtotal")
+	assert.Exactly(t, err.Error(), "detail subtotal does not match with expected subtotal")
 
 	mockSpan.AssertExpectations(t)
 }
