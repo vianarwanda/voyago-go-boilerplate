@@ -199,16 +199,7 @@ All booking-specific errors use the `BOOKING_*` prefix for easy identification.
 | `BOOKING_AMOUNT_INCONSISTENT` | total amount does not match with details subtotal | 400         | The `total_amount` field does not equal the sum of all detail `sub_total` values |
 
 ### Infrastructure Errors
-
-The module also uses standard infrastructure error codes:
-
-| Code | HTTP Status | Description |
-|------|-------------|-------------|
-| `INVALID_REQUEST` | 400 | Request validation failed (missing required fields, invalid format, etc.) |
-| `MALFORMED_REQUEST` | 400 | Invalid JSON format or data type mismatch |
-| `DB_CONFLICT` | 409 | Database constraint violation (unique, foreign key) |
-| `DB_CONSTRAINT` | 400 | Database constraint violation (check, not null) |
-| `INTERNAL_ERROR` | 500 | Unexpected system error |
+> Common infrastructure errors (e.g., `INVALID_REQUEST`, `INTERNAL_ERROR`) are documented in the [Root README](../../../../README.md#infrastructure-error-codes).
 
 ---
 
