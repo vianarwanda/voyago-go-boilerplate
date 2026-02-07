@@ -396,7 +396,7 @@ const (
     CodeBookingNotFound           = "BOOKING_NOT_FOUND"
     CodeBookingCodeAlreadyExists  = "BOOKING_CODE_ALREADY_EXISTS"
     CodeBookingAmountInconsistent = "BOOKING_AMOUNT_INCONSISTENT"
-    CodeBookingDetailRequired     = "BOOKING_DETAILS_REQUIRED"
+    CodeBookingDetailsRequired     = "BOOKING_DETAILS_REQUIRED"
 )
 
 var (
@@ -415,8 +415,8 @@ var (
         "total amount does not match with details subtotal",
     )
 
-    ErrBookingDetailRequired = apperror.NewPersistance(
-        CodeBookingDetailRequired,
+    ErrBookingDetailsRequired = apperror.NewPersistance(
+        CodeBookingDetailsRequired,
         "booking must have at least one detail",
     )
 )

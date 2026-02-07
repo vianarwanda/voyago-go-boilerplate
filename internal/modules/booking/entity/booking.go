@@ -11,7 +11,7 @@ const (
 	CodeBookingNotFound           = "BOOKING_NOT_FOUND"
 	CodeBookingCodeAlreadyExists  = "BOOKING_CODE_ALREADY_EXISTS"
 	CodeBookingAmountInconsistent = "BOOKING_AMOUNT_INCONSISTENT"
-	CodeBookingDetailRequired     = "BOOKING_DETAIL_REQUIRED"
+	CodeBookingDetailsRequired    = "BOOKING_DETAILS_REQUIRED"
 )
 
 func init() {
@@ -34,8 +34,8 @@ var (
 		"total amount does not match with details subtotal",
 	)
 
-	ErrBookingDetailRequired = apperror.NewPersistance(
-		CodeBookingDetailRequired,
+	ErrBookingDetailsRequired = apperror.NewPersistance(
+		CodeBookingDetailsRequired,
 		"booking must have at least one detail",
 	)
 )
@@ -72,7 +72,7 @@ func (e *Booking) Validate() error {
 	// We enforce this at the domain level to prevent "empty" transactions
 	// from polluting the database and financial reports.
 	if len(e.Details) == 0 {
-		return ErrBookingDetailRequired
+		return ErrBookingDetailsRequired
 	}
 
 	// epsilon defines the threshold for floating-point equality comparisons.

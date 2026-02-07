@@ -268,7 +268,7 @@ func TestCreateBookingUseCase_Execute_ValidationError_EmptyDetails(t *testing.T)
 	// Assert
 	assert.Error(t, err)
 	assert.Nil(t, resp)
-	assert.Equal(t, entity.ErrBookingDetailRequired, err)
+	assert.Equal(t, entity.ErrBookingDetailsRequired, err)
 
 	mockSpan.AssertExpectations(t)
 }

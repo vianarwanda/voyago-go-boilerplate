@@ -162,7 +162,7 @@ func TestHandler_CreateBooking_Success(t *testing.T) {
 	resp := makeRequest(t, app, "POST", "/bookings/", requestBody)
 
 	// Assert
-	assert.Equal(t, fiber.StatusOK, resp.Code)
+	assert.Equal(t, fiber.StatusCreated, resp.Code)
 
 	var response map[string]any
 	err := json.Unmarshal(resp.Body.Bytes(), &response)
@@ -494,7 +494,7 @@ func TestHandler_CreateBooking_ProductNameOptional(t *testing.T) {
 	resp := makeRequest(t, app, "POST", "/bookings/", requestBody)
 
 	// Assert - should succeed since product_name is optional (omitempty)
-	assert.Equal(t, fiber.StatusOK, resp.Code)
+	assert.Equal(t, fiber.StatusCreated, resp.Code)
 
 	mockUseCase.AssertExpectations(t)
 }

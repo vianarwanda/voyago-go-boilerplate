@@ -70,7 +70,7 @@ func TestBooking_Validate_EmptyDetails(t *testing.T) {
 
 	// Assert
 	assert.Error(t, err)
-	assert.Equal(t, entity.ErrBookingDetailRequired, err)
+	assert.Equal(t, entity.ErrBookingDetailsRequired, err)
 }
 
 func TestBooking_Validate_TotalAmountInconsistent(t *testing.T) {
