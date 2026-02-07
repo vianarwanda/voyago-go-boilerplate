@@ -729,7 +729,7 @@ The **`booking`** module serves as the complete reference implementation. Use it
 | `booking/module.go` | Dependency injection pattern |
 | `booking/delivery/http/handler.go` | Handler with observability standards |
 | `booking/usecase/contract.go` | UseCase interface & DTO definitions |
-| `booking/usecase/create_booking.go` | UseCase with DTOs and error handling |
+| `booking/usecase/create_booking.go` | Business logic implementation |
 | `booking/repository/contract.go` | CQRS interface definitions |
 | `booking/repository/command/booking.go` | Repository implementation (Write/Command) |
 | `booking/repository/query/booking.go` | Repository implementation (Read/Query) |
