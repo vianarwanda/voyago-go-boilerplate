@@ -308,6 +308,8 @@ All errors in the system **must** use the `apperror.AppError` standardized struc
 > **Best Practice:**
 > 1. **Define errors at the top of entity file** (e.g., `booking.go`, NOT `booking_errors.go`)
 > 2. **Use SCREAMING_SNAKE_CASE** with module prefix: `{MODULE}_{RESOURCE}_{ERROR_TYPE}` (e.g., `BOOKING_AMOUNT_INCONSISTENT`)
+> 3. **Document your errors** if you define any (see [Error Documentation](#error-documentation))
+> 4. **Never reuse error codes** across modules
 
 ### Modular HTTP Mapping (`RegisterStatus`)
 
@@ -335,8 +337,7 @@ The system uses a **FLAT** response structure (no nesting for error codes) for b
   "trace_id": "uuid-trace-id"
 }
 ```
-> 3. Document your errors if you define any (see Error Documentation section)
-> 4. Never reuse error codes across modules
+
 
 ### Global Error Handling Mechanism
 
