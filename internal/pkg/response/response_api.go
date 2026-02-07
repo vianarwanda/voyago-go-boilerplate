@@ -32,55 +32,42 @@ type ResponseApi struct {
 	TraceID string `json:"trace_id,omitempty"`
 }
 
-// NewResponseApi initializes a new response object and automatically extracts
-// the TraceID from the context (populated by telemetries middleware).
-func NewResponseApi(c *fiber.Ctx) *ResponseApi {
-	// Extract TraceID from locals.
-	// This ensures every response, whether success or error, carries its technical identity.
-	traceID, _ := c.Locals("trace_id").(string)
-	return &ResponseApi{
-		TraceID: traceID,
-	}
+// responseBuilder handles the construction of API responses.
+type responseBuilder struct {
+	ctx *fiber.Ctx
+}
+
+// NewResponseApi initializes a new response builder.
+// It captures the context once to avoid redundant passing in subsequent method calls.
+func NewResponseApi(c *fiber.Ctx) *responseBuilder {
+	return &responseBuilder{ctx: c}
 }
 
 // OK sends a standardized successful response (HTTP 200).
-// It populates the common fields and ensures the 'Success' flag is set to true.
-func (r *ResponseApi) OK(c *fiber.Ctx, response ResponseApi) error {
-	r.Success = true
-	r.Message = response.Message
-	r.Data = response.Data
-	r.Meta = response.Meta
-	return c.Status(fiber.StatusOK).JSON(r)
+func (b *responseBuilder) OK(response ResponseApi) error {
+	response.Success = true
+	response.TraceID, _ = b.ctx.Locals("trace_id").(string)
+	return b.ctx.Status(fiber.StatusOK).JSON(response)
 }
 
 // Created sends a standardized resource creation response (HTTP 201).
-// Use this when a resource has been successfully created (e.g., POST /bookings).
-//
-// Why: It tells the client that the resource is new and specific headers (like Location) might be relevant.
-func (r *ResponseApi) Created(c *fiber.Ctx, response ResponseApi) error {
-	r.Success = true
-	r.Message = response.Message
-	r.Data = response.Data
-	r.Meta = response.Meta
-	return c.Status(fiber.StatusCreated).JSON(r)
+// Use this when a resource has been successfully created.
+func (b *responseBuilder) Created(response ResponseApi) error {
+	response.Success = true
+	response.TraceID, _ = b.ctx.Locals("trace_id").(string)
+	return b.ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
 // Accepted sends a standardized response for asynchronous processing (HTTP 202).
-// Use this when a request is valid and queued but processing is not yet complete (e.g., Generate PDF).
-//
-// Why: It prevents client timeouts on long-running tasks and indicates that the request is "in progress".
-func (r *ResponseApi) Accepted(c *fiber.Ctx, response ResponseApi) error {
-	r.Success = true
-	r.Message = response.Message
-	r.Data = response.Data
-	r.Meta = response.Meta
-	return c.Status(fiber.StatusAccepted).JSON(r)
+// Use this when a request is valid and queued.
+func (b *responseBuilder) Accepted(response ResponseApi) error {
+	response.Success = true
+	response.TraceID, _ = b.ctx.Locals("trace_id").(string)
+	return b.ctx.Status(fiber.StatusAccepted).JSON(response)
 }
 
 // NoContent sends a successful response with no body (HTTP 204).
-// Use this when an action is successful but there is no data to return (e.g., DELETE /bookings/1).
-//
-// Why: It saves bandwidth and clearly signals "done, nothing to see here".
-func (r *ResponseApi) NoContent(c *fiber.Ctx) error {
-	return c.SendStatus(fiber.StatusNoContent)
+// Use this when an action is successful but there is no data to return.
+func (b *responseBuilder) NoContent() error {
+	return b.ctx.SendStatus(fiber.StatusNoContent)
 }

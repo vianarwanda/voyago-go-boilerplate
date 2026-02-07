@@ -254,7 +254,7 @@ All API responses **must** use the `response` package. This ensures consistency 
 #### 1. OK (200)
 Use for standard successful operations (GET, PUT, PATCH).
 ```go
-return response.NewResponseApi(c).OK(c, response.ResponseApi{
+return response.NewResponseApi(c).OK(response.ResponseApi{
     Message: "Data retrieved",
     Data:    result,
 })
@@ -264,7 +264,7 @@ return response.NewResponseApi(c).OK(c, response.ResponseApi{
 **Usage:** When a resource is successfully **created** (usually via POST).
 **Why:** Distinctly tells the client "this is new data", often triggering cache invalidation or list updates on the frontend.
 ```go
-return response.NewResponseApi(c).Created(c, response.ResponseApi{
+return response.NewResponseApi(c).Created(response.ResponseApi{
     Message: "Booking created",
     Data:    newBooking,
 })
@@ -274,7 +274,7 @@ return response.NewResponseApi(c).Created(c, response.ResponseApi{
 **Usage:** When a request is valid and **queued for background processing**.
 **Why:** Prevents timeouts on long-running tasks (e.g., PDF generation, heavy exports). The client gets an immediate ack and can poll for status later.
 ```go
-return response.NewResponseApi(c).Accepted(c, response.ResponseApi{
+return response.NewResponseApi(c).Accepted(response.ResponseApi{
     Message: "Export started. You will be notified when ready.",
 })
 ```
@@ -283,7 +283,7 @@ return response.NewResponseApi(c).Accepted(c, response.ResponseApi{
 **Usage:** When an action is successful but **no data needs to be returned** (e.g., cancel booking, delete item).
 **Why:** Saves bandwidth and provides a clear semantic that "the resource is gone" or "the action is done".
 ```go
-return response.NewResponseApi(c).NoContent(c)
+return response.NewResponseApi(c).NoContent()
 ```
 
 ---
