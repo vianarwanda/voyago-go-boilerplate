@@ -189,7 +189,7 @@ All booking-specific errors use the `BOOKING_*` prefix for easy identification.
 | Code | Message | HTTP Status | Description |
 |------|---------|-------------|-------------|
 | `BOOKING_NOT_FOUND` | booking record not found | 404 | The requested booking ID does not exist in the database |
-| `BOOKING_CODE_ALREADY_EXISTS` | booking code already exists | 400 | Attempted to create a booking with a code that already exists (duplicate) |
+| `BOOKING_CODE_ALREADY_EXISTS` | booking code already exists | 409 | Attempted to create a booking with a code that already exists (duplicate) |
 
 ### Validation Errors
 
