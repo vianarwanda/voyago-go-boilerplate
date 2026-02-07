@@ -26,9 +26,9 @@ The Booking module manages the complete lifecycle of bookings, including:
 ## API Endpoints
 
 ### Base Path
-All booking endpoints are prefixed with:
+All booking endpoints are relative to the domain base URL:
 ```
-/api/v1/bookings
+{BASE_URL}/bookings
 ```
 
 ---
@@ -39,7 +39,7 @@ Creates a new booking with one or more product details.
 
 **Endpoint:**
 ```
-POST /api/v1/bookings
+POST {BASE_URL}/bookings
 ```
 
 **Request Headers:**
@@ -164,7 +164,7 @@ See [Error Codes](#error-codes) section below for complete list.
 
 **cURL Example:**
 ```bash
-curl -X POST http://localhost:8080/api/v1/bookings \
+curl -X POST http://localhost:8080/bookings \
   -H "Content-Type: application/json" \
   -d '{
     "code": "BKG-2024-001",

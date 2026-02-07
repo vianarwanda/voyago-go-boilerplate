@@ -136,7 +136,7 @@ We strictly separate Domain Entities from external API contracts.
 
 ---
 
-### 3. Entity with Domain Validation (Mandatory)
+### 4. Entity with Domain Validation (Mandatory)
 
 Entities **must** include:
 - Domain-specific error codes
@@ -159,7 +159,7 @@ func (e *Booking) Validate() error {
 
 ---
 
-### 4. Repository Standards (Mandatory)
+### 5. Repository Standards (Mandatory)
 
 Repositories are divided into **Command** (Write) and **Query** (Read) to follow the CQRS pattern.
 
