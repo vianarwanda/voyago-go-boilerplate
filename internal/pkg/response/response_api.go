@@ -52,3 +52,35 @@ func (r *ResponseApi) OK(c *fiber.Ctx, response ResponseApi) error {
 	r.Meta = response.Meta
 	return c.Status(fiber.StatusOK).JSON(r)
 }
+
+// Created sends a standardized resource creation response (HTTP 201).
+// Use this when a resource has been successfully created (e.g., POST /bookings).
+//
+// Why: It tells the client that the resource is new and specific headers (like Location) might be relevant.
+func (r *ResponseApi) Created(c *fiber.Ctx, response ResponseApi) error {
+	r.Success = true
+	r.Message = response.Message
+	r.Data = response.Data
+	r.Meta = response.Meta
+	return c.Status(fiber.StatusCreated).JSON(r)
+}
+
+// Accepted sends a standardized response for asynchronous processing (HTTP 202).
+// Use this when a request is valid and queued but processing is not yet complete (e.g., Generate PDF).
+//
+// Why: It prevents client timeouts on long-running tasks and indicates that the request is "in progress".
+func (r *ResponseApi) Accepted(c *fiber.Ctx, response ResponseApi) error {
+	r.Success = true
+	r.Message = response.Message
+	r.Data = response.Data
+	r.Meta = response.Meta
+	return c.Status(fiber.StatusAccepted).JSON(r)
+}
+
+// NoContent sends a successful response with no body (HTTP 204).
+// Use this when an action is successful but there is no data to return (e.g., DELETE /bookings/1).
+//
+// Why: It saves bandwidth and clearly signals "done, nothing to see here".
+func (r *ResponseApi) NoContent(c *fiber.Ctx) error {
+	return c.SendStatus(fiber.StatusNoContent)
+}

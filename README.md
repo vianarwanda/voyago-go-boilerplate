@@ -234,6 +234,60 @@ Each module's `README.md` **must** include:
 
 ---
 
+## API Response Standards
+
+All API responses **must** use the `response` package. This ensures consistency and simplifies frontend integrations.
+
+### Standard Response Structure
+```json
+{
+  "success": true,
+  "message": "Operation successful",
+  "data": { ... },
+  "meta": { ... },
+  "trace_id": "123e4567-e89b-12d3..."
+}
+```
+
+### Supported Statuses & Usage
+
+#### 1. OK (200)
+Use for standard successful operations (GET, PUT, PATCH).
+```go
+return response.NewResponseApi(c).OK(c, response.ResponseApi{
+    Message: "Data retrieved",
+    Data:    result,
+})
+```
+
+#### 2. Created (201)
+**Usage:** When a resource is successfully **created** (usually via POST).
+**Why:** Distinctly tells the client "this is new data", often triggering cache invalidation or list updates on the frontend.
+```go
+return response.NewResponseApi(c).Created(c, response.ResponseApi{
+    Message: "Booking created",
+    Data:    newBooking,
+})
+```
+
+#### 3. Accepted (202)
+**Usage:** When a request is valid and **queued for background processing**.
+**Why:** Prevents timeouts on long-running tasks (e.g., PDF generation, heavy exports). The client gets an immediate ack and can poll for status later.
+```go
+return response.NewResponseApi(c).Accepted(c, response.ResponseApi{
+    Message: "Export started. You will be notified when ready.",
+})
+```
+
+#### 4. No Content (204)
+**Usage:** When an action is successful but **no data needs to be returned** (e.g., cancel booking, delete item).
+**Why:** Saves bandwidth and provides a clear semantic that "the resource is gone" or "the action is done".
+```go
+return response.NewResponseApi(c).NoContent(c)
+```
+
+---
+
 ## Error Handling Standards
 
 All errors in the system **must** use the `apperror.AppError` standardized structure. This ensures consistent API responses, proper error classification, and effective observability.
