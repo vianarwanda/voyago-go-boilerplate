@@ -341,7 +341,7 @@ The system uses a **FLAT** response structure (no nesting for error codes) for b
 
 ### Global Error Handling Mechanism
 
-The system implements a **Global Error Handler** (see `internal/infrastructure/server/server.go`) that automatically intercepts and formats all errors returned by handlers.
+The system implements a **Global Error Handler** (see [`internal/infrastructure/server/server.go`](./internal/infrastructure/server/server.go)) that automatically intercepts and formats all errors returned by handlers.
 
 **How it works:**
 1. **Handlers propagate errors**: You simply return `error` from your handler (e.g., `return uc.Execute(...)`).
@@ -394,10 +394,10 @@ import (
 
 // [ENTITY STANDARD: DOMAIN SPECIFIC ERROR]
 const (
-    CodeBookingNotFound           = "BOOKING_NOT_FOUND"
-    CodeBookingCodeAlreadyExists  = "BOOKING_CODE_ALREADY_EXISTS"
-    CodeBookingAmountInconsistent = "BOOKING_AMOUNT_INCONSISTENT"
-    CodeBookingDetailsRequired     = "BOOKING_DETAILS_REQUIRED"
+    CodeBookingNotFound             = "BOOKING_NOT_FOUND"
+    CodeBookingCodeAlreadyExists    = "BOOKING_CODE_ALREADY_EXISTS"
+    CodeBookingAmountInconsistent   = "BOOKING_AMOUNT_INCONSISTENT"
+    CodeBookingDetailsRequired      = "BOOKING_DETAILS_REQUIRED"
 )
 
 var (
@@ -725,10 +725,14 @@ The **`booking`** module serves as the complete reference implementation. Use it
 
 | File | Purpose |
 |------|---------|
+| `booking/README.md` | Module API Documentation (Mandatory) |
 | `booking/module.go` | Dependency injection pattern |
 | `booking/delivery/http/handler.go` | Handler with observability standards |
+| `booking/usecase/contract.go` | UseCase interface & DTO definitions |
 | `booking/usecase/create_booking.go` | UseCase with DTOs and error handling |
 | `booking/repository/contract.go` | CQRS interface definitions |
+| `booking/repository/command/booking.go` | Repository implementation (Write/Command) |
+| `booking/repository/query/booking.go` | Repository implementation (Read/Query) |
 | `booking/entity/booking.go` | Entity with domain validation |
 
 ---
@@ -738,5 +742,6 @@ The **`booking`** module serves as the complete reference implementation. Use it
 1. Create a branch from `main`: `git checkout -b feature/{MODULE_NAME}/{feature-name}`
 2. Follow the architectural standards outlined above
 3. Ensure all interface compliance checks pass
-4. Submit a Pull Request for review
+4. **Update Module README:** Document any API changes or new error codes
+5. Submit a Pull Request for review
 
