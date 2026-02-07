@@ -186,17 +186,17 @@ All booking-specific errors use the `BOOKING_*` prefix for easy identification.
 
 ### Entity Errors
 
-| Code | Message | HTTP Status | Description |
-|------|---------|-------------|-------------|
-| `BOOKING_NOT_FOUND` | booking record not found | 404 | The requested booking ID does not exist in the database |
-| `BOOKING_CODE_ALREADY_EXISTS` | booking code already exists | 409 | Attempted to create a booking with a code that already exists (duplicate) |
+| Code                          | Message                     | HTTP Status | Description                                                              |
+|-------------------------------|-----------------------------|-------------|--------------------------------------------------------------------------|
+| `BOOKING_NOT_FOUND`           | booking record not found    | 404         | The requested booking ID does not exist in the database                  |
+| `BOOKING_CODE_ALREADY_EXISTS` | booking code already exists | 409         | Attempted to create a booking with a code that already exists (duplicate)|
 
 ### Validation Errors
 
-| Code | Message | HTTP Status | Description |
-|------|---------|-------------|-------------|
-| `BOOKING_DETAILS_REQUIRED` | booking must have at least one detail | 400 | The `details` array is empty or missing |
-| `BOOKING_AMOUNT_INCONSISTENT` | total amount does not match with details subtotal | 400 | The `total_amount` field does not equal the sum of all detail `sub_total` values |
+| Code                          | Message                                           | HTTP Status | Description                                                                      |
+|-------------------------------|---------------------------------------------------|-------------|----------------------------------------------------------------------------------|
+| `BOOKING_DETAILS_REQUIRED`    | booking must have at least one detail             | 400         | The `details` array is empty or missing                                          |
+| `BOOKING_AMOUNT_INCONSISTENT` | total amount does not match with details subtotal | 400         | The `total_amount` field does not equal the sum of all detail `sub_total` values |
 
 ### Infrastructure Errors
 

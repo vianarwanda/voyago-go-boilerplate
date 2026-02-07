@@ -546,17 +546,17 @@ ErrCodeConflict            // Conflict                         (PERSISTANCE, 409
 
 ### Entity Errors
 
-| Code | Message | HTTP Status | Description |
-|------|---------|-------------|-------------|
-| `BOOKING_NOT_FOUND` | booking record not found | 404 | Booking ID does not exist |
-| `BOOKING_CODE_ALREADY_EXISTS` | booking code already exists | 409 | Duplicate booking code detected |
+| Code                          | Message                     | HTTP Status | Description                                       |
+|-------------------------------|-----------------------------|-------------|---------------------------------------------------|
+| `BOOKING_NOT_FOUND`           | booking record not found    | 404         | Booking ID does not exist                         |
+| `BOOKING_CODE_ALREADY_EXISTS` | booking code already exists | 409         | Duplicate booking code detected                   |
 
 ### Validation Errors
 
-| Code | Message | HTTP Status | Description |
-|------|---------|-------------|-------------|
-| `BOOKING_DETAILS_REQUIRED` | booking must have at least one detail | 400 | Empty details array |
-| `BOOKING_AMOUNT_INCONSISTENT` | total amount does not match with details subtotal | 400 | Sum validation failed |
+| Code                          | Message                                           | HTTP Status | Description                                       |
+|-------------------------------|---------------------------------------------------|-------------|---------------------------------------------------|
+| `BOOKING_DETAILS_REQUIRED`    | booking must have at least one detail             | 400         | Empty details array                               |
+| `BOOKING_AMOUNT_INCONSISTENT` | total amount does not match with details subtotal | 400         | Sum validation failed                             |
 ```
 
 **Why This is Mandatory:**
