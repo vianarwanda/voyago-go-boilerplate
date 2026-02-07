@@ -103,8 +103,6 @@ TEST_DB_PASSWORD=your_password \
 | `TEST_DB_PASSWORD` | Database password | - | **Yes** |
 | `TEST_DB_NAME` | Database name | `voyago_test` | No |
 
----
-
 ## Security Note
 
 ⚠️ **NEVER commit `.env.test` to git!**
@@ -112,8 +110,6 @@ TEST_DB_PASSWORD=your_password \
 - `.env.test` is in `.gitignore` to prevent credential leaks
 - Use `.env.test.example` as a template
 - Each developer should create their own `.env.test` locally
-
----
 
 ## Test Coverage Goals
 
@@ -131,8 +127,6 @@ TEST_DB_PASSWORD=your_password \
 | **Handler** | - | ~90% | ✅ Excellent |
 | **Integration** | - | Repo | ✅ |
 | **E2E** | - | HTTP | ✅ |
-
----
 
 ## Troubleshooting
 
