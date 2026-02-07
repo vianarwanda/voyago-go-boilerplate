@@ -8,10 +8,10 @@ import (
 
 // [ENTITY STANDARD: DOMAIN SPECIFIC ERROR]
 const (
-	CodeBookingNotFound           = "booking.not_found"
-	CodeBookingCodeAlreadyExists  = "booking.booking_code.already_exists"
-	CodeBookingAmountInconsistent = "booking.amount.inconsistent"
-	CodeBookingDetailRequired     = "booking.details.required"
+	CodeBookingNotFound           = "BOOKING_NOT_FOUND"
+	CodeBookingCodeAlreadyExists  = "BOOKING_CODE_ALREADY_EXISTS"
+	CodeBookingAmountInconsistent = "BOOKING_AMOUNT_INCONSISTENT"
+	CodeBookingDetailRequired     = "BOOKING_DETAIL_REQUIRED"
 )
 
 var (

@@ -44,6 +44,10 @@ Development teams should **focus exclusively** on the following directories base
 | **Domain Logic** | `./internal/modules/{MODULE_NAME}/` | All business logic implementation |
 | **Database Migrations** | `./migrations/{MODULE_NAME}/` | SQL up/down migration scripts |
 | **Module Configuration** | `./config/{MODULE_NAME}/` | Database and logging configuration |
+| **Module Documentation** | `./internal/modules/{MODULE_NAME}/README.md` | API documentation, error codes, schemas |
+
+> [!NOTE]
+> **Module Documentation is Mandatory**: Every module MUST have a `README.md` file documenting its API endpoints, request/response schemas, error codes, and usage examples. See the [`booking` module README](./internal/modules/booking/README.md) as a reference template.
 
 ### Restricted Areas
 
@@ -190,6 +194,7 @@ When creating a new module, adhere to the following structure:
 
 ```
 internal/modules/{MODULE_NAME}/
+├── README.md                   # ⭐ MANDATORY: Module documentation (API, errors, schemas)
 ├── delivery/
 │   └── http/
 │       ├── handler.go          # HTTP request handlers
@@ -206,6 +211,298 @@ internal/modules/{MODULE_NAME}/
 │   ├── contract.go             # ⭐ MANDATORY: Interface & DTO definitions
 │   └── {action}_{entity}.go    # Implementation of the business logic
 └── module.go                   # Dependency injection and module registration
+```
+
+### Module README Requirements
+
+Each module's `README.md` **must** include:
+
+1. **Overview** - Brief description of the domain and key features
+2. **API Endpoints** - Complete endpoint documentation with:
+   - Request/response schemas (based on UseCase DTOs)
+   - Field validation rules
+   - Success and error response examples
+   - cURL examples
+3. **Error Codes** - Table of all module-specific error codes
+4. **Database Schema** - Tables, columns, and constraints
+5. **Business Rules** - Domain-specific validation and logic
+
+> [!IMPORTANT]
+> Module READMEs are for **API consumers and external teams**. Focus on API documentation only. Do NOT include internal implementation details (architecture, test coverage, dependencies, deployment).
+
+**Reference Template:** See [`booking/README.md`](./internal/modules/booking/README.md) for a complete example.
+
+---
+
+## Error Handling Standards
+
+All errors in the system **must** use the `apperror.AppError` standardized structure. This ensures consistent API responses, proper error classification, and effective observability.
+
+> [!IMPORTANT]
+> **Per-Module Error Guidelines**:
+> 
+> **When to define domain-specific errors:**
+> - Module has **business validation rules** (e.g., amount consistency, required fields)
+> - Module has **domain-specific logic** (e.g., booking code uniqueness, workflow states)
+> - Module needs **custom error messages** for better UX
+>
+> **When infrastructure errors are sufficient:**
+> - Simple CRUD operations without business logic
+> - Read-only/query services (use `ErrCodeNotFound`, etc.)
+> - Proxy/aggregator modules that just combine data
+>
+> **Best Practice:**
+> 1. **Define errors at the top of entity file** (e.g., `booking.go`, NOT `booking_errors.go`)
+> 2. **Use SCREAMING_SNAKE_CASE** with module prefix: `{MODULE}_{RESOURCE}_{ERROR_TYPE}`
+> 3. Document your errors if you define any (see Error Documentation section)
+> 4. Never reuse error codes across modules
+
+### Error Structure
+
+```go
+type AppError struct {
+    Code     string  // Machine-readable error code (e.g., "DB_CONFLICT")
+    Message  string  // Human-readable error message
+    Kind     Kind    // Error classification: PERSISTANCE, TRANSIENT, or INTERNAL
+    Details  any     // Additional context (validation errors, debug info)
+    Err      error   // Wrapped underlying error
+}
+```
+
+### Error Kinds
+
+| Kind | Description | Retryable | HTTP Status | Example |
+|------|-------------|-----------|-------------|---------|
+| **PERSISTANCE** | Errors that will fail again without input changes | ❌ No | 400, 404, 409 | Validation errors, Resource conflicts |
+| **TRANSIENT** | Temporary failures that might succeed on retry | ✅ Yes | 500, 503 | Network timeouts, DB deadlocks |
+| **INTERNAL** | Unexpected system failures or bugs | ❌ No | 500 | Nil pointers, Syntax errors |
+
+---
+
+### Creating Custom Errors
+
+#### Step 1: Define Error Codes in Entity File
+
+Add your error codes **at the top of your entity file**, right after imports:
+
+```go
+// internal/modules/booking/entity/booking.go
+package entity
+
+import (
+    "voyago/core-api/internal/pkg/apperror"
+)
+
+// [ENTITY STANDARD: DOMAIN SPECIFIC ERROR]
+const (
+    CodeBookingNotFound           = "BOOKING_NOT_FOUND"
+    CodeBookingCodeAlreadyExists  = "BOOKING_CODE_ALREADY_EXISTS"
+    CodeBookingAmountInconsistent = "BOOKING_AMOUNT_INCONSISTENT"
+    CodeBookingDetailRequired     = "BOOKING_DETAILS_REQUIRED"
+)
+
+var (
+    ErrBookingNotFound = apperror.NewPersistance(
+        CodeBookingNotFound,
+        "booking record not found",
+    )
+
+    ErrBookingCodeAlreadyExists = apperror.NewPersistance(
+        CodeBookingCodeAlreadyExists,
+        "booking code already exists",
+    )
+
+    ErrBookingAmountInconsistent = apperror.NewPersistance(
+        CodeBookingAmountInconsistent,
+        "total amount does not match with details subtotal",
+    )
+
+    ErrBookingDetailRequired = apperror.NewPersistance(
+        CodeBookingDetailRequired,
+        "booking must have at least one detail",
+    )
+)
+
+// Then your entity struct below
+type Booking struct {
+    // ...
+}
+```
+
+**Naming Convention:**
+- Use **SCREAMING_SNAKE_CASE**: All uppercase with underscores
+- **Prefix with module name** to create namespace: `{MODULE}_{DESCRIPTION}`
+- Examples:
+  - `BOOKING_NOT_FOUND` - Entity-level error
+  - `BOOKING_CODE_ALREADY_EXISTS` - Field-specific error
+  - `BOOKING_AMOUNT_INCONSISTENT` - Business rule error
+  - `BOOKING_DETAILS_REQUIRED` - Validation error
+  - `USER_NOT_FOUND`, `PAYMENT_INSUFFICIENT_FUNDS` - Other modules
+
+**Message Convention:**
+- Use **lowercase**, simple phrases (not sentences with periods)
+- Be clear and user-friendly
+- Keep it concise but descriptive
+
+**Factory Functions:**
+- `apperror.NewPersistance(code, message)` - For validation/business errors (400, 409)
+- `apperror.NewTransient(code, message)` - For retryable errors (500, 503)
+- `apperror.NewInternal(code, message, err)` - For system errors (500)
+
+#### Step 2: Use Errors in Your Code
+
+```go
+// Entity validation
+func (b *Booking) Validate() error {
+    if len(b.Details) == 0 {
+        return ErrBookingDetailRequired  // Pre-configured error
+    }
+    return nil
+}
+
+// UseCase with custom message
+if existingBooking != nil {
+    return nil, ErrBookingCodeExists.WithDetail("booking_code", req.BookingCode)
+}
+
+// Repository error wrapping
+if err != nil {
+    return apperror.ErrCodeDbConflict.WithError(err)
+}
+```
+
+### Error Customization Methods
+
+#### Adding Details
+
+```go
+// Add single detail
+err := ErrBookingCodeExists.WithDetail("booking_code", req.BookingCode)
+
+// Add multiple details
+err := ErrBookingCodeExists.
+    WithDetail("booking_code", req.BookingCode).
+    WithDetail("user_id", req.UserID)
+```
+
+#### Adding Validation Errors
+
+```go
+validationErr := apperror.ErrCodeValidation.
+    AddValidationError("email", "Invalid email format").
+    AddValidationError("age", "Must be at least 18")
+```
+
+#### Wrapping Underlying Errors
+
+```go
+// Preserve original error for debugging
+return apperror.ErrCodeDbConflict.WithError(originalError)
+```
+
+### Infrastructure Error Codes
+
+The following error codes are pre-defined in `internal/pkg/apperror/codes.go`:
+
+#### Database Errors
+```go
+ErrCodeDbConnectionFailed  // Database connection failed       (TRANSIENT, 500)
+ErrCodeDbTimeout           // Database timeout                 (TRANSIENT, 500)
+ErrCodeDbDeadlock          // Database deadlock                (TRANSIENT, 500)
+ErrCodeDbConstraint        // Database constraint violation    (PERSISTANCE, 400)
+ErrCodeDbConflict          // Database conflict                (PERSISTANCE, 409)
+```
+
+#### Request Errors
+```go
+ErrCodeMalformedRequest    // Invalid JSON format or data type (PERSISTANCE, 400)
+ErrCodeInvalidRequest      // Invalid request                  (PERSISTANCE, 400)
+ErrCodeValidation          // Validation error                 (PERSISTANCE, 400)
+```
+
+#### HTTP Errors
+```go
+ErrCodeUnauthorized        // Unauthorized                     (PERSISTANCE, 401)
+ErrCodeForbidden           // Forbidden                        (PERSISTANCE, 403)
+ErrCodeNotFound            // Not found                        (PERSISTANCE, 404)
+ErrCodeConflict            // Conflict                         (PERSISTANCE, 409)
+// ... and many more HTTP status codes
+```
+
+### Error Documentation (Recommended)
+
+**If you define domain-specific errors, document them.** Create `{MODULE}/docs/errors.md` or add an **Error Codes** section to your module's README.
+
+#### Required Documentation Format
+
+```markdown
+## Error Codes
+
+### Entity Errors
+
+| Code | Message | HTTP Status | Description |
+|------|---------|-------------|-------------|
+| `BOOKING_NOT_FOUND` | booking record not found | 404 | Booking ID does not exist |
+| `BOOKING_CODE_ALREADY_EXISTS` | booking code already exists | 409 | Duplicate booking code detected |
+
+### Validation Errors
+
+| Code | Message | HTTP Status | Description |
+|------|---------|-------------|-------------|
+| `BOOKING_DETAILS_REQUIRED` | booking must have at least one detail | 400 | Empty details array |
+| `BOOKING_AMOUNT_INCONSISTENT` | total amount does not match with details subtotal | 400 | Sum validation failed |
+```
+
+**Why This is Mandatory:**
+- **Frontend Integration** - Frontend teams need to know all possible error codes for proper error handling
+- **API Documentation** - Error codes are part of your API contract
+- **Debugging** - Other teams can quickly identify error sources
+- **Consistency** - Ensures all modules follow the same error standards
+
+---
+
+### Best Practices
+
+1. **Always use pre-configured errors** — Don't create `AppError` instances inline
+2. **Errors at top of entity file** — Define errors right after imports, before struct definitions
+3. **Use SCREAMING_SNAKE_CASE** — Consistent with infrastructure errors: `BOOKING_NOT_FOUND`
+4. **Prefix with module name** — Clear namespace: `BOOKING_`, `USER_`, `PAYMENT_`
+5. **Helpful messages** — Write user-friendly error messages (lowercase, no periods)
+6. **Add context** — Use `.WithDetail()` to provide debugging information
+7. **Wrap underlying errors** — Use `.WithError(err)` to preserve stack traces
+8. **📝 Document all errors** — Maintain updated error documentation for your module
+
+### Example: Complete Error Flow
+
+```go
+// 1. Define domain error codes
+// entity/booking.go
+const CodeBookingDetailSubtotalInconsistent = "BOOKING_DETAIL_SUBTOTAL_INCONSISTENT"
+
+var ErrBookingDetailSubtotalInconsistent = apperror.NewPersistance(
+    CodeBookingDetailSubtotalInconsistent,
+    "detail subtotal does not match quantity × price",
+    nil,
+)
+
+// 2. Use in entity validation
+// entity/booking.go
+func (d *BookingDetail) Validate() error {
+    expectedSubTotal := float64(d.Qty) * d.PricePerUnit
+    if math.Abs(d.SubTotal-expectedSubTotal) > 0.01 {
+        return ErrBookingDetailSubTotalInconsistent.
+            WithDetail("expected", expectedSubTotal).
+            WithDetail("actual", d.SubTotal)
+    }
+    return nil
+}
+
+// 3. Handle in UseCase
+// usecase/create_booking.go
+if err := booking.Validate(); err != nil {
+    log.Warn("booking validation failed", "error", err)
+    return nil, err  // Error already has code and message
+}
 ```
 
 ---
@@ -337,8 +634,3 @@ The **`booking`** module serves as the complete reference implementation. Use it
 3. Ensure all interface compliance checks pass
 4. Submit a Pull Request for review
 
----
-
-## Contact
-
-For architectural questions or clarifications, please contact the core maintainers.
