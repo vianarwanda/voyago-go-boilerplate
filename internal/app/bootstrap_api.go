@@ -39,6 +39,38 @@ func (b *BootstrapApiConfig) Run() {
 	b.setupHealthRoute()
 }
 
+func (b *BootstrapApiConfig) Stop() {
+	for _, domain := range domains {
+		log, okLog := b.loggers[domain]
+		db, okDb := b.dbs[domain]
+
+		if !okLog || log == nil {
+			log = b.Log // Fallback to global logger
+		}
+
+		if !okDb || db == nil {
+			log.WithFields(map[string]any{
+				"domain":    domain,
+				"component": "database",
+			}).Warn("Database connection not found during shutdown")
+			continue
+		}
+
+		if err := db.Close(); err != nil {
+			log.WithFields(map[string]any{
+				"domain":       domain,
+				"component":    "database",
+				"error_detail": err.Error(),
+			}).Error("Failed to close database connection")
+		} else {
+			log.WithFields(map[string]any{
+				"domain":    domain,
+				"component": "database",
+			}).Info("Database connection closed gracefully")
+		}
+	}
+}
+
 func (b *BootstrapApiConfig) setupMiddleware() {
 	t := middleware.NewTelemetrist(b.Log, b.Tracer, b.Metrics)
 

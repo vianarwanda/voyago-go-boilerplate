@@ -91,6 +91,9 @@ func main() {
 				"error_detail": err.Error(),
 			}).Error("Server forced to shutdown")
 		}
+
+		// Stop all domain connections (databases, loggers, etc.)
+		bootstrap.Stop()
 	}()
 
 	if err := srv.Start(); err != nil {
