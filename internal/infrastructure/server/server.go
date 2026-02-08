@@ -68,7 +68,7 @@ func NewServer(
 // It returns an error if the server fails to bind to the address.
 func (s *Server) Start() error {
 	addr := fmt.Sprintf(":%d", s.cfg.Http.Port)
-	s.log.Info(fmt.Sprintf("Server [%s] is starting on %s", s.cfg.App.Name, addr))
+	s.log.Info(fmt.Sprintf("Server [%s] started and listening on %s", s.cfg.App.Name, addr))
 	return s.App.Listen(addr)
 }
 
