@@ -13,7 +13,7 @@ Voyago Core API is the backend service for the Voyago platform. This project imp
 ```
 voyago/core-api/
 ├── cmd/
-│   └── api/                    # Application entry point
+│   └── http/                   # HTTP Server entry point
 ├── config/
 │   ├── config.yaml             # Global configuration (server, telemetry)
 │   └── {MODULE_NAME}/          # Per-module configuration (database, logging)
@@ -21,7 +21,7 @@ voyago/core-api/
 │   └── {MODULE_NAME}/          # SQL migrations per module
 ├── internal/
 │   ├── app/                    # Application bootstrap
-│   ├── infrastructure/         # Shared infrastructure (db, logger, telemetry, validator)
+│   ├── infrastructure/         # Shared infrastructure (http, db, logger, telemetry, etc.)
 │   ├── modules/                # ⭐ DOMAIN MODULES (development team focus)
 │   │   └── {MODULE_NAME}/
 │   │       ├── delivery/       # HTTP handlers and routes
@@ -341,7 +341,7 @@ The system uses a **FLAT** response structure (no nesting for error codes) for b
 
 ### Global Error Handling Mechanism
 
-The system implements a **Global Error Handler** (see [`internal/infrastructure/server/server.go`](./internal/infrastructure/server/server.go)) that automatically intercepts and formats all errors returned by handlers.
+The system implements a **Global Error Handler** (see [`internal/infrastructure/http/server.go`](./internal/infrastructure/http/server.go)) that automatically intercepts and formats all errors returned by handlers.
 
 **How it works:**
 1. **Handlers propagate errors**: You simply return `error` from your handler (e.g., `return uc.Execute(...)`).
@@ -691,7 +691,7 @@ go mod download
 migrate -path ./migrations/booking -database "postgres://..." up
 
 # Start the API server
-go run ./cmd/api/main.go
+go run ./cmd/http/main.go
 ```
 
 ### Configuration

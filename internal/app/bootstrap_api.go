@@ -116,7 +116,7 @@ func (b *BootstrapApiConfig) setupModules() {
 	// --- Booking Module ---
 	m = "booking"
 	if cfg, ok := b.configs[m]; ok {
-		booking.RegisterModule(booking.ModuleConfig{
+		booking.RegisterHttpModule(booking.HttpModuleConfig{
 			Config: cfg,
 			Server: b.App,
 			DB:     b.dbs[m],

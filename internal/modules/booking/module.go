@@ -14,7 +14,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type ModuleConfig struct {
+type HttpModuleConfig struct {
 	Config *config.Config
 	Server *fiber.App
 	DB     database.Database
@@ -23,7 +23,7 @@ type ModuleConfig struct {
 	Tracer tracer.Tracer
 }
 
-func RegisterModule(cfg ModuleConfig) {
+func RegisterHttpModule(cfg HttpModuleConfig) {
 	ucLogger := cfg.Log.WithField("component", "usecase")
 	hdlrLogger := cfg.Log.WithField("component", "handler")
 
