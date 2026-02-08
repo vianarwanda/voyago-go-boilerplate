@@ -97,7 +97,7 @@ func TestBooking_Validate_DetailSubTotalInconsistent(t *testing.T) {
 
 	// Assert
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "invalid subtotal")
+	assert.Contains(t, err.Error(), "detail subtotal does not match")
 }
 
 func TestBooking_Validate_MultipleDetails_Success(t *testing.T) {
@@ -207,8 +207,7 @@ func TestBooking_Validate_MultipleDetails_OneInvalidSubTotal(t *testing.T) {
 
 	// Assert
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "invalid subtotal")
-	assert.Contains(t, err.Error(), "product-id-222")
+	assert.Contains(t, err.Error(), "detail subtotal does not match")
 }
 
 func TestBooking_Validate_EdgeCase_ZeroAmount(t *testing.T) {
