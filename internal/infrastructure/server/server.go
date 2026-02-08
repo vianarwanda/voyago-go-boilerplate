@@ -60,7 +60,7 @@ func NewServer(
 	return &Server{
 		App: app,
 		cfg: cfg,
-		log: log,
+		log: log.WithField("component", "app"),
 	}
 }
 
