@@ -161,7 +161,7 @@ Extract a module to a microservice when:
 3. **Implement Async Communication:** Use message queue for events
 4. **Separate Database:** Deploy module database independently
 5. **Deploy Service:** Extract to independent deployment
-6. **Monitor \u0026 Iterate:** Validate performance and reliability improvements
+6. **Monitor & Iterate:** Validate performance and reliability improvements
 
 ---
 
