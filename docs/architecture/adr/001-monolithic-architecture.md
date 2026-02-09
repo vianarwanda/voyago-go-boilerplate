@@ -1,6 +1,6 @@
 # ADR-001: Adoption of Modular Monolith Architecture
 
-**Status:** Proposed  
+**Status:** Accepted  
 **Date:** 2026-02-07  
 **Decision Makers:** Engineering Team  
 **Tags:** #architecture #monolith #modular-design
