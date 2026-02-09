@@ -101,10 +101,8 @@ func errorHdlr(c *fiber.Ctx, err error) error {
 		errCode = fmt.Sprintf("ERR_%d", e.Code)
 	}
 
-	// get trace id from locals
 	traceID, _ := c.Locals("trace_id").(string)
-
-	return c.Status(code).JSON(response.ResponseApi{
+	return c.Status(code).JSON(response.Http{
 		Success:     false,
 		Message:     message,
 		ErrorCode:   errCode,

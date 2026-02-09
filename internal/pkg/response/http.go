@@ -2,10 +2,10 @@ package response
 
 import "github.com/gofiber/fiber/v2"
 
-// ResponseApi defines the standardized JSON structure for all API responses.
+// Http defines the standardized JSON structure for all HTTP API responses.
 // It bridges the gap between the server and client by providing consistent
 // metadata, domain data, and observability IDs (TraceID).
-type ResponseApi struct {
+type Http struct {
 	// Success indicates if the operation was completed without business or technical errors.
 	Success bool `json:"success"`
 
@@ -32,19 +32,19 @@ type ResponseApi struct {
 	TraceID string `json:"trace_id,omitempty"`
 }
 
-// responseBuilder handles the construction of API responses.
-type responseBuilder struct {
+// builder handles the construction of HTTP API responses.
+type builder struct {
 	ctx *fiber.Ctx
 }
 
-// NewResponseApi initializes a new response builder.
+// NewHttp initializes a new HTTP response builder.
 // It captures the context once to avoid redundant passing in subsequent method calls.
-func NewResponseApi(c *fiber.Ctx) *responseBuilder {
-	return &responseBuilder{ctx: c}
+func NewHttp(c *fiber.Ctx) *builder {
+	return &builder{ctx: c}
 }
 
 // OK sends a standardized successful response (HTTP 200).
-func (b *responseBuilder) OK(response ResponseApi) error {
+func (b *builder) OK(response Http) error {
 	response.Success = true
 	response.TraceID, _ = b.ctx.Locals("trace_id").(string)
 	return b.ctx.Status(fiber.StatusOK).JSON(response)
@@ -52,7 +52,7 @@ func (b *responseBuilder) OK(response ResponseApi) error {
 
 // Created sends a standardized resource creation response (HTTP 201).
 // Use this when a resource has been successfully created.
-func (b *responseBuilder) Created(response ResponseApi) error {
+func (b *builder) Created(response Http) error {
 	response.Success = true
 	response.TraceID, _ = b.ctx.Locals("trace_id").(string)
 	return b.ctx.Status(fiber.StatusCreated).JSON(response)
@@ -60,7 +60,7 @@ func (b *responseBuilder) Created(response ResponseApi) error {
 
 // Accepted sends a standardized response for asynchronous processing (HTTP 202).
 // Use this when a request is valid and queued.
-func (b *responseBuilder) Accepted(response ResponseApi) error {
+func (b *builder) Accepted(response Http) error {
 	response.Success = true
 	response.TraceID, _ = b.ctx.Locals("trace_id").(string)
 	return b.ctx.Status(fiber.StatusAccepted).JSON(response)
@@ -68,6 +68,6 @@ func (b *responseBuilder) Accepted(response ResponseApi) error {
 
 // NoContent sends a successful response with no body (HTTP 204).
 // Use this when an action is successful but there is no data to return.
-func (b *responseBuilder) NoContent() error {
+func (b *builder) NoContent() error {
 	return b.ctx.SendStatus(fiber.StatusNoContent)
 }

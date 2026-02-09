@@ -254,7 +254,7 @@ All API responses **must** use the `response` package. This ensures consistency 
 #### 1. OK (200)
 Use for standard successful operations (GET, PUT, PATCH).
 ```go
-return response.NewResponseApi(c).OK(response.ResponseApi{
+return response.NewHttp(c).OK(response.Http{
     Message: "Data retrieved",
     Data:    result,
 })
@@ -264,7 +264,7 @@ return response.NewResponseApi(c).OK(response.ResponseApi{
 **Usage:** When a resource is successfully **created** (usually via POST).
 **Why:** Distinctly tells the client "this is new data", often triggering cache invalidation or list updates on the frontend.
 ```go
-return response.NewResponseApi(c).Created(response.ResponseApi{
+return response.NewHttp(c).Created(response.Http{
     Message: "Booking created",
     Data:    newBooking,
 })
@@ -274,7 +274,7 @@ return response.NewResponseApi(c).Created(response.ResponseApi{
 **Usage:** When a request is valid and **queued for background processing**.
 **Why:** Prevents timeouts on long-running tasks (e.g., PDF generation, heavy exports). The client gets an immediate ack and can poll for status later.
 ```go
-return response.NewResponseApi(c).Accepted(response.ResponseApi{
+return response.NewHttp(c).Accepted(response.Http{
     Message: "Export started. You will be notified when ready.",
 })
 ```
@@ -283,7 +283,7 @@ return response.NewResponseApi(c).Accepted(response.ResponseApi{
 **Usage:** When an action is successful but **no data needs to be returned** (e.g., cancel booking, delete item).
 **Why:** Saves bandwidth and provides a clear semantic that "the resource is gone" or "the action is done".
 ```go
-return response.NewResponseApi(c).NoContent()
+return response.NewHttp(c).NoContent()
 ```
 
 ---
@@ -352,7 +352,7 @@ The system implements a **Global Error Handler** (see [`internal/infrastructure/
    - `error` (unknown): Masked as `500 Internal Server Error` for security, with original error logged.
 
 **Benefit**:
-- **Consistent Structure**: Both success and error responses use the same `response.ResponseApi` struct.
+- **Consistent Structure**: Both success and error responses use the same `response.Http` struct.
 - **No Try-Catch**: You don't need to format JSON error responses manually in every handler.
 - **Security**: System panics and unknown errors are safely masked from clients.
 

@@ -70,7 +70,7 @@ func main() {
 	}
 
 	srv := server.NewServer(globalCfg, appLogger)
-	bootstrap := app.BootstrapApiConfig{
+	bootstrap := app.BootstrapHttpConfig{
 		App:     srv.App,
 		Val:     val,
 		Log:     appLogger,

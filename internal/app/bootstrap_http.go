@@ -20,7 +20,7 @@ var domains = [1]string{
 	// "merchant",
 }
 
-type BootstrapApiConfig struct {
+type BootstrapHttpConfig struct {
 	App     *fiber.App
 	Val     validator.Validator
 	Log     logger.Logger
@@ -32,14 +32,14 @@ type BootstrapApiConfig struct {
 	dbs     map[string]database.Database
 }
 
-func (b *BootstrapApiConfig) Run() {
+func (b *BootstrapHttpConfig) Run() {
 	b.setupMiddleware()
 	b.setupInfrastructureModules()
 	b.setupModules()
 	b.setupHealthRoute()
 }
 
-func (b *BootstrapApiConfig) Stop() {
+func (b *BootstrapHttpConfig) Stop() {
 	for _, domain := range domains {
 		log, okLog := b.loggers[domain]
 		db, okDb := b.dbs[domain]
@@ -71,7 +71,7 @@ func (b *BootstrapApiConfig) Stop() {
 	}
 }
 
-func (b *BootstrapApiConfig) setupMiddleware() {
+func (b *BootstrapHttpConfig) setupMiddleware() {
 	t := middleware.NewTelemetrist(b.Log, b.Tracer, b.Metrics)
 
 	b.App.Use(middleware.RequestID())
@@ -80,7 +80,7 @@ func (b *BootstrapApiConfig) setupMiddleware() {
 	b.App.Use(t.HandleLog())
 }
 
-func (b *BootstrapApiConfig) setupInfrastructureModules() {
+func (b *BootstrapHttpConfig) setupInfrastructureModules() {
 	domainCount := len(domains)
 	b.configs = make(map[string]*config.Config, domainCount)
 	b.loggers = make(map[string]logger.Logger, domainCount)
@@ -110,7 +110,7 @@ func (b *BootstrapApiConfig) setupInfrastructureModules() {
 	}
 }
 
-func (b *BootstrapApiConfig) setupModules() {
+func (b *BootstrapHttpConfig) setupModules() {
 	var m string
 
 	// --- Booking Module ---
@@ -127,7 +127,7 @@ func (b *BootstrapApiConfig) setupModules() {
 	}
 }
 
-func (b *BootstrapApiConfig) setupHealthRoute() {
+func (b *BootstrapHttpConfig) setupHealthRoute() {
 	h := func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"status": "UP",

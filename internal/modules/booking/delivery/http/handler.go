@@ -144,7 +144,7 @@ func (h *Handler) CreateBooking(c *fiber.Ctx) error {
 	// No success log is emitted here. The successful execution trace and the
 	// 'usecase completed' log are sufficient for audit and monitoring.
 	// We normalize the output using a consistent API response contract.
-	return response.NewResponseApi(c).Created(response.ResponseApi{
+	return response.NewHttp(c).Created(response.Http{
 		Message: "Booking created successfully",
 		Data:    createBooking, // Use the processed entity from UseCase
 	})
