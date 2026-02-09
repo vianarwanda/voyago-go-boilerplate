@@ -20,7 +20,7 @@ Each ADR follows this structure:
 
 | ADR | Title | Status | Date |
 |-----|-------|--------|------|
-| [001](./001-monolithic-architecture.md) | Adoption of Modular Monolith Architecture | Accepted | 2026-02-10 |
+| [001](./001-monolithic-architecture.md) | Adoption of Modular Monolith Architecture | Accepted | 2026-02-07 |
 
 ## Creating a New ADR
 
