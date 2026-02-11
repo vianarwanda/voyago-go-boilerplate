@@ -11,12 +11,14 @@ import (
 	"voyago/core-api/internal/infrastructure/telemetry/tracer"
 	"voyago/core-api/internal/infrastructure/validator"
 	"voyago/core-api/internal/modules/booking"
+	"voyago/core-api/internal/modules/product"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-var domains = [1]string{
+var domains = [2]string{
 	"booking",
+	"product",
 	// "merchant",
 }
 
@@ -85,6 +87,19 @@ func (b *BootstrapApiConfig) setupModules() {
 	m = "booking"
 	if cfg, ok := b.configs[m]; ok {
 		booking.RegisterModule(booking.ModuleConfig{
+			Config: cfg,
+			Server: b.App,
+			DB:     b.dbs[m],
+			Log:    b.loggers[m],
+			Val:    b.Val,
+			Tracer: b.Tracer,
+		})
+	}
+
+	// --- Product Module ---
+	m = "product"
+	if cfg, ok := b.configs[m]; ok {
+		product.RegisterModule(product.ModuleConfig{
 			Config: cfg,
 			Server: b.App,
 			DB:     b.dbs[m],

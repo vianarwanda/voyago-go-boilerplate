@@ -1,0 +1,19 @@
+database:
+  host: ${DB_HOST:localhost}
+  port: ${DB_PORT:5432}
+  user: ${DB_USER:postgres}
+  password: ${DB_PASSWORD:postgres}
+  name: "voyago"
+  pool:
+    idle: 10
+    max: 100
+    lifetime: 300
+
+log:
+  path: "./logs/booking/app.log"
+  level: 4
+  rotation:
+    max_size: 100 # in MB, before log is rotated
+    max_backup: 10 # number of old log files to keep
+    max_age: 14 # number of days to retain log files
+    compress: true # backup log will compressed (zip)
