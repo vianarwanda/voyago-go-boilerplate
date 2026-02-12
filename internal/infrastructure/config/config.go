@@ -8,5 +8,6 @@ type Config struct {
 
 	// Domain configuration
 	Database DatabaseConfig `mapstructure:"database"`
+	Redis    RedisConfig    `mapstructure:"redis"`
 	Log      LogConfig      `mapstructure:"log"`
 }
